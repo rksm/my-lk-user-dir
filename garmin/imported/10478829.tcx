@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TrainingCenterDatabase
+  xsi:schemaLocation="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2 http://www.garmin.com/xmlschemas/TrainingCenterDatabasev2.xsd"
+  xmlns:ns5="http://www.garmin.com/xmlschemas/ActivityGoals/v1"
+  xmlns:ns3="http://www.garmin.com/xmlschemas/ActivityExtension/v2"
+  xmlns:ns2="http://www.garmin.com/xmlschemas/UserProfile/v2"
+  xmlns="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ns4="http://www.garmin.com/xmlschemas/ProfileExtension/v1">
+  <Activities>
+    <Activity Sport="Running">
+      <Id>2008-07-21T16:26:33.000Z</Id>
+      <Lap StartTime="2008-07-21T16:26:33.000Z">
+        <TotalTimeSeconds>618.56</TotalTimeSeconds>
+        <DistanceMeters>1000.0</DistanceMeters>
+        <MaximumSpeed>2.5775807</MaximumSpeed>
+        <Calories>57</Calories>
+        <Intensity>Active</Intensity>
+        <TriggerMethod>Manual</TriggerMethod>
+        <Extensions>
+          <ns3:LX>
+            <ns3:AvgSpeed>1.6166580444904293</ns3:AvgSpeed>
+          </ns3:LX>
+        </Extensions>
+      </Lap>
+      <Lap StartTime="2008-07-21T16:36:52.000Z">
+        <TotalTimeSeconds>575.13</TotalTimeSeconds>
+        <DistanceMeters>1000.0</DistanceMeters>
+        <MaximumSpeed>2.0500412</MaximumSpeed>
+        <Calories>52</Calories>
+        <Intensity>Active</Intensity>
+        <TriggerMethod>Manual</TriggerMethod>
+        <Extensions>
+          <ns3:LX>
+            <ns3:AvgSpeed>1.7387373289517152</ns3:AvgSpeed>
+          </ns3:LX>
+        </Extensions>
+      </Lap>
+      <Lap StartTime="2008-07-21T16:46:56.000Z">
+        <TotalTimeSeconds>559.86</TotalTimeSeconds>
+        <DistanceMeters>1000.0</DistanceMeters>
+        <MaximumSpeed>2.378866</MaximumSpeed>
+        <Calories>78</Calories>
+        <Intensity>Active</Intensity>
+        <TriggerMethod>Manual</TriggerMethod>
+        <Extensions>
+          <ns3:LX>
+            <ns3:AvgSpeed>1.7861608259207657</ns3:AvgSpeed>
+          </ns3:LX>
+        </Extensions>
+      </Lap>
+      <Lap StartTime="2008-07-21T16:56:17.000Z">
+        <TotalTimeSeconds>585.34</TotalTimeSeconds>
+        <DistanceMeters>1000.0</DistanceMeters>
+        <MaximumSpeed>2.4561737</MaximumSpeed>
+        <Calories>94</Calories>
+        <Intensity>Active</Intensity>
+        <TriggerMethod>Manual</TriggerMethod>
+        <Extensions>
+          <ns3:LX>
+            <ns3:AvgSpeed>1.7084087880548056</ns3:AvgSpeed>
+          </ns3:LX>
+        </Extensions>
+      </Lap>
+      <Lap StartTime="2008-07-21T17:06:03.000Z">
+        <TotalTimeSeconds>584.56</TotalTimeSeconds>
+        <DistanceMeters>1000.0</DistanceMeters>
+        <MaximumSpeed>2.2930417</MaximumSpeed>
+        <Calories>83</Calories>
+        <Intensity>Active</Intensity>
+        <TriggerMethod>Manual</TriggerMethod>
+        <Extensions>
+          <ns3:LX>
+            <ns3:AvgSpeed>1.7106883810045161</ns3:AvgSpeed>
+          </ns3:LX>
+        </Extensions>
+      </Lap>
+      <Lap StartTime="2008-07-21T17:15:49.000Z">
+        <TotalTimeSeconds>605.66</TotalTimeSeconds>
+        <DistanceMeters>1000.0</DistanceMeters>
+        <MaximumSpeed>2.477957</MaximumSpeed>
+        <Calories>68</Calories>
+        <Intensity>Active</Intensity>
+        <TriggerMethod>Manual</TriggerMethod>
+        <Extensions>
+          <ns3:LX>
+            <ns3:AvgSpeed>1.651091371396493</ns3:AvgSpeed>
+          </ns3:LX>
+        </Extensions>
+      </Lap>
+      <Lap StartTime="2008-07-21T17:25:54.000Z">
+        <TotalTimeSeconds>629.27</TotalTimeSeconds>
+        <DistanceMeters>1000.0</DistanceMeters>
+        <MaximumSpeed>1.9844141</MaximumSpeed>
+        <Calories>89</Calories>
+        <Intensity>Active</Intensity>
+        <TriggerMethod>Manual</TriggerMethod>
+        <Extensions>
+          <ns3:LX>
+            <ns3:AvgSpeed>1.5891429751934782</ns3:AvgSpeed>
+          </ns3:LX>
+        </Extensions>
+      </Lap>
+      <Lap StartTime="2008-07-21T17:36:24.000Z">
+        <TotalTimeSeconds>772.08</TotalTimeSeconds>
+        <DistanceMeters>1000.0</DistanceMeters>
+        <MaximumSpeed>1.7695607000000002</MaximumSpeed>
+        <Calories>94</Calories>
+        <Intensity>Active</Intensity>
+        <TriggerMethod>Manual</TriggerMethod>
+        <Extensions>
+          <ns3:LX>
+            <ns3:AvgSpeed>1.2952025696818983</ns3:AvgSpeed>
+          </ns3:LX>
+        </Extensions>
+      </Lap>
+      <Lap StartTime="2008-07-21T17:49:45.000Z">
+        <TotalTimeSeconds>868.15</TotalTimeSeconds>
+        <DistanceMeters>1000.0</DistanceMeters>
+        <MaximumSpeed>1.9758189</MaximumSpeed>
+        <Calories>47</Calories>
+        <Intensity>Active</Intensity>
+        <TriggerMethod>Manual</TriggerMethod>
+        <Extensions>
+          <ns3:LX>
+            <ns3:AvgSpeed>1.1518746760352472</ns3:AvgSpeed>
+          </ns3:LX>
+        </Extensions>
+      </Lap>
+      <Lap StartTime="2008-07-21T18:04:58.000Z">
+        <TotalTimeSeconds>529.49</TotalTimeSeconds>
+        <DistanceMeters>642.96</DistanceMeters>
+        <MaximumSpeed>2.1769209</MaximumSpeed>
+        <Calories>37</Calories>
+        <Intensity>Active</Intensity>
+        <TriggerMethod>Manual</TriggerMethod>
+        <Extensions>
+          <ns3:LX>
+            <ns3:AvgSpeed>1.2143060125781413</ns3:AvgSpeed>
+          </ns3:LX>
+        </Extensions>
+      </Lap>
+      <Creator xsi:type="Device_t">
+        <Name>Garmin Forerunner 301</Name>
+        <UnitId>3187241676</UnitId>
+        <ProductID>283</ProductID>
+        <Version>
+          <VersionMajor>3</VersionMajor>
+          <VersionMinor>20</VersionMinor>
+          <BuildMajor>0</BuildMajor>
+          <BuildMinor>0</BuildMinor>
+        </Version>
+      </Creator>
+    </Activity>
+  </Activities>
+  <Author xsi:type="Application_t">
+    <Name>Garmin Connect API</Name>
+    <Build>
+      <Version>
+        <VersionMajor>0</VersionMajor>
+        <VersionMinor>0</VersionMinor>
+        <BuildMajor>0</BuildMajor>
+        <BuildMinor>0</BuildMinor>
+      </Version>
+    </Build>
+    <LangID>en</LangID>
+    <PartNumber>GAR-MINCN-CT</PartNumber>
+  </Author>
+</TrainingCenterDatabase>

@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TrainingCenterDatabase
+  xsi:schemaLocation="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2 http://www.garmin.com/xmlschemas/TrainingCenterDatabasev2.xsd"
+  xmlns:ns5="http://www.garmin.com/xmlschemas/ActivityGoals/v1"
+  xmlns:ns3="http://www.garmin.com/xmlschemas/ActivityExtension/v2"
+  xmlns:ns2="http://www.garmin.com/xmlschemas/UserProfile/v2"
+  xmlns="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ns4="http://www.garmin.com/xmlschemas/ProfileExtension/v1">
+  <Activities>
+    <Activity Sport="Running">
+      <Id>2008-07-12T12:46:04.000Z</Id>
+      <Lap StartTime="2008-07-12T12:46:04.000Z">
+        <TotalTimeSeconds>583.62</TotalTimeSeconds>
+        <DistanceMeters>1000.0</DistanceMeters>
+        <MaximumSpeed>2.0508687</MaximumSpeed>
+        <Calories>61</Calories>
+        <AverageHeartRateBpm>
+          <Value>95</Value>
+        </AverageHeartRateBpm>
+        <MaximumHeartRateBpm>
+          <Value>102</Value>
+        </MaximumHeartRateBpm>
+        <Intensity>Active</Intensity>
+        <TriggerMethod>Manual</TriggerMethod>
+        <Extensions>
+          <ns3:LX>
+            <ns3:AvgSpeed>1.7134436791062675</ns3:AvgSpeed>
+          </ns3:LX>
+        </Extensions>
+      </Lap>
+      <Lap StartTime="2008-07-12T12:55:49.000Z">
+        <TotalTimeSeconds>573.0</TotalTimeSeconds>
+        <DistanceMeters>1000.0</DistanceMeters>
+        <MaximumSpeed>2.0293357</MaximumSpeed>
+        <Calories>72</Calories>
+        <AverageHeartRateBpm>
+          <Value>95</Value>
+        </AverageHeartRateBpm>
+        <MaximumHeartRateBpm>
+          <Value>100</Value>
+        </MaximumHeartRateBpm>
+        <Intensity>Active</Intensity>
+        <TriggerMethod>Manual</TriggerMethod>
+        <Extensions>
+          <ns3:LX>
+            <ns3:AvgSpeed>1.7452006980802792</ns3:AvgSpeed>
+          </ns3:LX>
+        </Extensions>
+      </Lap>
+      <Lap StartTime="2008-07-12T13:05:22.000Z">
+        <TotalTimeSeconds>584.48</TotalTimeSeconds>
+        <DistanceMeters>1000.0</DistanceMeters>
+        <MaximumSpeed>2.3507328</MaximumSpeed>
+        <Calories>84</Calories>
+        <AverageHeartRateBpm>
+          <Value>98</Value>
+        </AverageHeartRateBpm>
+        <MaximumHeartRateBpm>
+          <Value>112</Value>
+        </MaximumHeartRateBpm>
+        <Intensity>Active</Intensity>
+        <TriggerMethod>Manual</TriggerMethod>
+        <Extensions>
+          <ns3:LX>
+            <ns3:AvgSpeed>1.7109225294278674</ns3:AvgSpeed>
+          </ns3:LX>
+        </Extensions>
+      </Lap>
+      <Lap StartTime="2008-07-12T13:15:10.000Z">
+        <TotalTimeSeconds>595.31</TotalTimeSeconds>
+        <DistanceMeters>1000.0</DistanceMeters>
+        <MaximumSpeed>2.7518728</MaximumSpeed>
+        <Calories>85</Calories>
+        <AverageHeartRateBpm>
+          <Value>101</Value>
+        </AverageHeartRateBpm>
+        <MaximumHeartRateBpm>
+          <Value>128</Value>
+        </MaximumHeartRateBpm>
+        <Intensity>Active</Intensity>
+        <TriggerMethod>Manual</TriggerMethod>
+        <Extensions>
+          <ns3:LX>
+            <ns3:AvgSpeed>1.679797080512674</ns3:AvgSpeed>
+          </ns3:LX>
+        </Extensions>
+      </Lap>
+      <Lap StartTime="2008-07-12T13:25:07.000Z">
+        <TotalTimeSeconds>589.42</TotalTimeSeconds>
+        <DistanceMeters>1000.0</DistanceMeters>
+        <MaximumSpeed>2.4854846</MaximumSpeed>
+        <Calories>68</Calories>
+        <AverageHeartRateBpm>
+          <Value>98</Value>
+        </AverageHeartRateBpm>
+        <MaximumHeartRateBpm>
+          <Value>114</Value>
+        </MaximumHeartRateBpm>
+        <Intensity>Active</Intensity>
+        <TriggerMethod>Manual</TriggerMethod>
+        <Extensions>
+          <ns3:LX>
+            <ns3:AvgSpeed>1.6965830816735095</ns3:AvgSpeed>
+          </ns3:LX>
+        </Extensions>
+      </Lap>
+      <Lap StartTime="2008-07-12T13:35:09.000Z">
+        <TotalTimeSeconds>543.38</TotalTimeSeconds>
+        <DistanceMeters>1000.0</DistanceMeters>
+        <MaximumSpeed>2.4598005</MaximumSpeed>
+        <Calories>89</Calories>
+        <AverageHeartRateBpm>
+          <Value>99</Value>
+        </AverageHeartRateBpm>
+        <MaximumHeartRateBpm>
+          <Value>107</Value>
+        </MaximumHeartRateBpm>
+        <Intensity>Active</Intensity>
+        <TriggerMethod>Manual</TriggerMethod>
+        <Extensions>
+          <ns3:LX>
+            <ns3:AvgSpeed>1.8403327321579739</ns3:AvgSpeed>
+          </ns3:LX>
+        </Extensions>
+      </Lap>
+      <Lap StartTime="2008-07-12T13:44:43.000Z">
+        <TotalTimeSeconds>162.65</TotalTimeSeconds>
+        <DistanceMeters>264.57</DistanceMeters>
+        <MaximumSpeed>2.0615859</MaximumSpeed>
+        <Calories>17</Calories>
+        <AverageHeartRateBpm>
+          <Value>98</Value>
+        </AverageHeartRateBpm>
+        <MaximumHeartRateBpm>
+          <Value>101</Value>
+        </MaximumHeartRateBpm>
+        <Intensity>Active</Intensity>
+        <TriggerMethod>Manual</TriggerMethod>
+        <Extensions>
+          <ns3:LX>
+            <ns3:AvgSpeed>1.6266295056870579</ns3:AvgSpeed>
+          </ns3:LX>
+        </Extensions>
+      </Lap>
+      <Creator xsi:type="Device_t">
+        <Name>Garmin Forerunner 301</Name>
+        <UnitId>3187241676</UnitId>
+        <ProductID>283</ProductID>
+        <Version>
+          <VersionMajor>3</VersionMajor>
+          <VersionMinor>20</VersionMinor>
+          <BuildMajor>0</BuildMajor>
+          <BuildMinor>0</BuildMinor>
+        </Version>
+      </Creator>
+    </Activity>
+  </Activities>
+  <Author xsi:type="Application_t">
+    <Name>Garmin Connect API</Name>
+    <Build>
+      <Version>
+        <VersionMajor>0</VersionMajor>
+        <VersionMinor>0</VersionMinor>
+        <BuildMajor>0</BuildMajor>
+        <BuildMinor>0</BuildMinor>
+      </Version>
+    </Build>
+    <LangID>en</LangID>
+    <PartNumber>GAR-MINCN-CT</PartNumber>
+  </Author>
+</TrainingCenterDatabase>

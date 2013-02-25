@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TrainingCenterDatabase
+  xsi:schemaLocation="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2 http://www.garmin.com/xmlschemas/TrainingCenterDatabasev2.xsd"
+  xmlns:ns5="http://www.garmin.com/xmlschemas/ActivityGoals/v1"
+  xmlns:ns3="http://www.garmin.com/xmlschemas/ActivityExtension/v2"
+  xmlns:ns2="http://www.garmin.com/xmlschemas/UserProfile/v2"
+  xmlns="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ns4="http://www.garmin.com/xmlschemas/ProfileExtension/v1">
+  <Activities>
+    <Activity Sport="Running">
+      <Id>2008-08-04T14:03:05.000Z</Id>
+      <Lap StartTime="2008-08-04T14:03:05.000Z">
+        <TotalTimeSeconds>588.01</TotalTimeSeconds>
+        <DistanceMeters>1000.0</DistanceMeters>
+        <MaximumSpeed>2.6074199999999994</MaximumSpeed>
+        <Calories>68</Calories>
+        <AverageHeartRateBpm>
+          <Value>98</Value>
+        </AverageHeartRateBpm>
+        <MaximumHeartRateBpm>
+          <Value>114</Value>
+        </MaximumHeartRateBpm>
+        <Intensity>Active</Intensity>
+        <TriggerMethod>Manual</TriggerMethod>
+        <Extensions>
+          <ns3:LX>
+            <ns3:AvgSpeed>1.7006513494668456</ns3:AvgSpeed>
+          </ns3:LX>
+        </Extensions>
+      </Lap>
+      <Lap StartTime="2008-08-04T14:13:01.000Z">
+        <TotalTimeSeconds>812.89</TotalTimeSeconds>
+        <DistanceMeters>1000.0</DistanceMeters>
+        <MaximumSpeed>5.0045662</MaximumSpeed>
+        <Calories>132</Calories>
+        <AverageHeartRateBpm>
+          <Value>83</Value>
+        </AverageHeartRateBpm>
+        <MaximumHeartRateBpm>
+          <Value>107</Value>
+        </MaximumHeartRateBpm>
+        <Intensity>Active</Intensity>
+        <TriggerMethod>Manual</TriggerMethod>
+        <Extensions>
+          <ns3:LX>
+            <ns3:AvgSpeed>1.2301787449716444</ns3:AvgSpeed>
+          </ns3:LX>
+        </Extensions>
+      </Lap>
+      <Lap StartTime="2008-08-04T14:43:40.000Z">
+        <TotalTimeSeconds>841.74</TotalTimeSeconds>
+        <DistanceMeters>1000.0</DistanceMeters>
+        <MaximumSpeed>2.4970124</MaximumSpeed>
+        <Calories>63</Calories>
+        <AverageHeartRateBpm>
+          <Value>99</Value>
+        </AverageHeartRateBpm>
+        <MaximumHeartRateBpm>
+          <Value>115</Value>
+        </MaximumHeartRateBpm>
+        <Intensity>Active</Intensity>
+        <TriggerMethod>Manual</TriggerMethod>
+        <Extensions>
+          <ns3:LX>
+            <ns3:AvgSpeed>1.188015301637085</ns3:AvgSpeed>
+          </ns3:LX>
+        </Extensions>
+      </Lap>
+      <Lap StartTime="2008-08-04T14:59:44.000Z">
+        <TotalTimeSeconds>311.92</TotalTimeSeconds>
+        <DistanceMeters>500.84</DistanceMeters>
+        <MaximumSpeed>1.9262134</MaximumSpeed>
+        <Calories>32</Calories>
+        <AverageHeartRateBpm>
+          <Value>104</Value>
+        </AverageHeartRateBpm>
+        <MaximumHeartRateBpm>
+          <Value>115</Value>
+        </MaximumHeartRateBpm>
+        <Intensity>Active</Intensity>
+        <TriggerMethod>Manual</TriggerMethod>
+        <Extensions>
+          <ns3:LX>
+            <ns3:AvgSpeed>1.6056527478199538</ns3:AvgSpeed>
+          </ns3:LX>
+        </Extensions>
+      </Lap>
+      <Creator xsi:type="Device_t">
+        <Name>Garmin Forerunner 301</Name>
+        <UnitId>3187241676</UnitId>
+        <ProductID>283</ProductID>
+        <Version>
+          <VersionMajor>3</VersionMajor>
+          <VersionMinor>20</VersionMinor>
+          <BuildMajor>0</BuildMajor>
+          <BuildMinor>0</BuildMinor>
+        </Version>
+      </Creator>
+    </Activity>
+  </Activities>
+  <Author xsi:type="Application_t">
+    <Name>Garmin Connect API</Name>
+    <Build>
+      <Version>
+        <VersionMajor>0</VersionMajor>
+        <VersionMinor>0</VersionMinor>
+        <BuildMajor>0</BuildMajor>
+        <BuildMinor>0</BuildMinor>
+      </Version>
+    </Build>
+    <LangID>en</LangID>
+    <PartNumber>GAR-MINCN-CT</PartNumber>
+  </Author>
+</TrainingCenterDatabase>

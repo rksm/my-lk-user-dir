@@ -1,0 +1,458 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"> 
+ <head>
+	<title>Bootstrap New Morphic</title>
+	<script>Config={isNewMorphic: true, showWikiNavigator: false}</script>
+	<script src="../../../core/lively/bootstrap.js"></script>
+	<meta id="WorldChangeSet">
+		<code xmlns="http://www.w3.org/2000/svg">
+			<doit name="local requirements" automaticEval="true"><![CDATA[// An array of module names that is loaded on world load
+[]]]></doit>
+			<doit name="initializer">// this script is evaluated on world load</doit></code>
+	</meta>
+	<meta id="LivelyJSONWorld"><![CDATA[{
+  "id": 0,
+  "registry": {
+    "0": {
+      "submorphs": [
+        {
+          "__isSmartRef__": true,
+          "id": 1
+        },
+        {
+          "__isSmartRef__": true,
+          "id": 7
+        }
+      ],
+      "scripts": [],
+      "id": 121,
+      "shape": {
+        "__isSmartRef__": true,
+        "id": 22
+      },
+      "grabbingEnabled": false,
+      "droppingEnabled": true,
+      "registeredForMouseEvents": true,
+      "eventHandler": {
+        "__isSmartRef__": true,
+        "id": 26
+      },
+      "showsMorphMenu": true,
+      "_Position": {
+        "__isSmartRef__": true,
+        "id": 32
+      },
+      "hands": [
+        {
+          "__isSmartRef__": true,
+          "id": 1
+        }
+      ],
+      "__LivelyClassName__": "lively.morphic.World",
+      "__SourceModuleName__": "Global.lively.morphic.Core"
+    },
+    "1": {
+      "submorphs": [],
+      "scripts": [],
+      "id": 122,
+      "shape": {
+        "__isSmartRef__": true,
+        "id": 2
+      },
+      "grabbingEnabled": false,
+      "droppingEnabled": false,
+      "showsMorphMenu": false,
+      "_world": {
+        "__isSmartRef__": true,
+        "id": 0
+      },
+      "_Position": {
+        "__isSmartRef__": true,
+        "id": 6
+      },
+      "owner": {
+        "__isSmartRef__": true,
+        "id": 0
+      },
+      "__LivelyClassName__": "lively.morphic.HandMorph",
+      "__SourceModuleName__": "Global.lively.morphic.Events"
+    },
+    "2": {
+      "position": {
+        "__isSmartRef__": true,
+        "id": 3
+      },
+      "extent": {
+        "__isSmartRef__": true,
+        "id": 4
+      },
+      "fill": {
+        "__isSmartRef__": true,
+        "id": 5
+      },
+      "__LivelyClassName__": "lively.morphic.Shapes.Rectangle",
+      "__SourceModuleName__": "Global.lively.morphic.Shapes"
+    },
+    "3": {
+      "x": 0,
+      "y": 0,
+      "__LivelyClassName__": "Point",
+      "__SourceModuleName__": "Global"
+    },
+    "4": {
+      "x": 5,
+      "y": 10,
+      "__LivelyClassName__": "Point",
+      "__SourceModuleName__": "Global"
+    },
+    "5": {
+      "r": 0.8,
+      "g": 0,
+      "b": 0,
+      "a": 1,
+      "__LivelyClassName__": "Color",
+      "__SourceModuleName__": "Global"
+    },
+    "6": {
+      "x": 250,
+      "y": 373,
+      "__LivelyClassName__": "Point",
+      "__SourceModuleName__": "Global"
+    },
+    "7": {
+      "submorphs": [],
+      "scripts": [],
+      "id": 123,
+      "shape": {
+        "__isSmartRef__": true,
+        "id": 8
+      },
+      "grabbingEnabled": false,
+      "droppingEnabled": false,
+      "showsMorphMenu": true,
+      "eventHandler": {
+        "__isSmartRef__": true,
+        "id": 13
+      },
+      "fixedWidth": true,
+      "_MaxTextWidth": 163,
+      "_MaxTextHeight": {},
+      "fixedHeight": false,
+      "allowsInput": true,
+      "cachedTextString": "Welcome to New Lively!",
+      "textColor": {
+        "__isSmartRef__": true,
+        "id": 11
+      },
+      "registeredForMouseEvents": true,
+      "_Position": {
+        "__isSmartRef__": true,
+        "id": 21
+      },
+      "owner": {
+        "__isSmartRef__": true,
+        "id": 0
+      },
+      "__LivelyClassName__": "lively.morphic.Text",
+      "__SourceModuleName__": "Global.lively.morphic.Core"
+    },
+    "8": {
+      "position": {
+        "__isSmartRef__": true,
+        "id": 9
+      },
+      "extent": {
+        "__isSmartRef__": true,
+        "id": 10
+      },
+      "borderWidth": 1,
+      "borderColor": {
+        "__isSmartRef__": true,
+        "id": 11
+      },
+      "fill": {
+        "__isSmartRef__": true,
+        "id": 12
+      },
+      "__LivelyClassName__": "lively.morphic.Shapes.Rectangle",
+      "__SourceModuleName__": "Global.lively.morphic.Shapes"
+    },
+    "9": {
+      "x": 0,
+      "y": 0,
+      "__LivelyClassName__": "Point",
+      "__SourceModuleName__": "Global"
+    },
+    "10": {
+      "x": 163,
+      "y": 20,
+      "__LivelyClassName__": "Point",
+      "__SourceModuleName__": "Global"
+    },
+    "11": {
+      "r": 0,
+      "g": 0,
+      "b": 0,
+      "a": 1,
+      "__LivelyClassName__": "Color",
+      "__SourceModuleName__": "Global"
+    },
+    "12": {
+      "r": 1,
+      "g": 1,
+      "b": 1,
+      "a": 1,
+      "__LivelyClassName__": "Color",
+      "__SourceModuleName__": "Global"
+    },
+    "13": {
+      "morph": {
+        "__isSmartRef__": true,
+        "id": 7
+      },
+      "dispatchTable": {
+        "__isSmartRef__": true,
+        "id": 14
+      },
+      "__LivelyClassName__": "lively.morphic.EventHandler",
+      "__SourceModuleName__": "Global.lively.morphic.Events"
+    },
+    "14": {
+      "contextmenu": {
+        "__isSmartRef__": true,
+        "id": 15
+      },
+      "keydown": {
+        "__isSmartRef__": true,
+        "id": 16
+      },
+      "keyup": {
+        "__isSmartRef__": true,
+        "id": 17
+      },
+      "keypress": {
+        "__isSmartRef__": true,
+        "id": 18
+      },
+      "mouseup": {
+        "__isSmartRef__": true,
+        "id": 19
+      },
+      "mousedown": {
+        "__isSmartRef__": true,
+        "id": 20
+      }
+    },
+    "15": {
+      "type": "contextmenu",
+      "target": {
+        "__isSmartRef__": true,
+        "id": 7
+      },
+      "targetMethodName": "onContextMenu",
+      "handleOnCapture": false,
+      "doNotSerialize": [
+        "node"
+      ],
+      "unregisterMethodName": "unregisterHTMLAndSVGAndCANVAS"
+    },
+    "16": {
+      "type": "keydown",
+      "target": {
+        "__isSmartRef__": true,
+        "id": 7
+      },
+      "targetMethodName": "onKeyDown",
+      "handleOnCapture": false,
+      "doNotSerialize": [
+        "node"
+      ],
+      "unregisterMethodName": "unregisterHTMLAndSVGAndCANVAS"
+    },
+    "17": {
+      "type": "keyup",
+      "target": {
+        "__isSmartRef__": true,
+        "id": 7
+      },
+      "targetMethodName": "onKeyUp",
+      "handleOnCapture": false,
+      "doNotSerialize": [
+        "node"
+      ],
+      "unregisterMethodName": "unregisterHTMLAndSVGAndCANVAS"
+    },
+    "18": {
+      "type": "keypress",
+      "target": {
+        "__isSmartRef__": true,
+        "id": 7
+      },
+      "targetMethodName": "onKeyPress",
+      "handleOnCapture": false,
+      "doNotSerialize": [
+        "node"
+      ],
+      "unregisterMethodName": "unregisterHTMLAndSVGAndCANVAS"
+    },
+    "19": {
+      "type": "mouseup",
+      "target": {
+        "__isSmartRef__": true,
+        "id": 7
+      },
+      "targetMethodName": "onMouseUp",
+      "handleOnCapture": false,
+      "doNotSerialize": [
+        "node"
+      ],
+      "unregisterMethodName": "unregisterHTMLAndSVGAndCANVAS"
+    },
+    "20": {
+      "type": "mousedown",
+      "target": {
+        "__isSmartRef__": true,
+        "id": 7
+      },
+      "targetMethodName": "onMouseDown",
+      "handleOnCapture": false,
+      "doNotSerialize": [
+        "node"
+      ],
+      "unregisterMethodName": "unregisterHTMLAndSVGAndCANVAS"
+    },
+    "21": {
+      "x": 118.5,
+      "y": 190,
+      "__LivelyClassName__": "Point",
+      "__SourceModuleName__": "Global"
+    },
+    "22": {
+      "position": {
+        "__isSmartRef__": true,
+        "id": 23
+      },
+      "extent": {
+        "__isSmartRef__": true,
+        "id": 24
+      },
+      "fill": {
+        "__isSmartRef__": true,
+        "id": 25
+      },
+      "__LivelyClassName__": "lively.morphic.Shapes.Rectangle",
+      "__SourceModuleName__": "Global.lively.morphic.Shapes"
+    },
+    "23": {
+      "x": 0,
+      "y": 0,
+      "__LivelyClassName__": "Point",
+      "__SourceModuleName__": "Global"
+    },
+    "24": {
+      "x": 400,
+      "y": 400,
+      "__LivelyClassName__": "Point",
+      "__SourceModuleName__": "Global"
+    },
+    "25": {
+      "r": 0.9,
+      "g": 0.9,
+      "b": 0.9,
+      "a": 1,
+      "__LivelyClassName__": "Color",
+      "__SourceModuleName__": "Global"
+    },
+    "26": {
+      "morph": {
+        "__isSmartRef__": true,
+        "id": 0
+      },
+      "dispatchTable": {
+        "__isSmartRef__": true,
+        "id": 27
+      },
+      "__LivelyClassName__": "lively.morphic.EventHandler",
+      "__SourceModuleName__": "Global.lively.morphic.Events"
+    },
+    "27": {
+      "mouseup": {
+        "__isSmartRef__": true,
+        "id": 28
+      },
+      "mousedown": {
+        "__isSmartRef__": true,
+        "id": 29
+      },
+      "mousemove": {
+        "__isSmartRef__": true,
+        "id": 30
+      },
+      "contextmenu": {
+        "__isSmartRef__": true,
+        "id": 31
+      }
+    },
+    "28": {
+      "type": "mouseup",
+      "target": {
+        "__isSmartRef__": true,
+        "id": 0
+      },
+      "targetMethodName": "onMouseUp",
+      "handleOnCapture": false,
+      "doNotSerialize": [
+        "node"
+      ],
+      "unregisterMethodName": "unregisterHTMLAndSVGAndCANVAS"
+    },
+    "29": {
+      "type": "mousedown",
+      "target": {
+        "__isSmartRef__": true,
+        "id": 0
+      },
+      "targetMethodName": "onMouseDown",
+      "handleOnCapture": false,
+      "doNotSerialize": [
+        "node"
+      ],
+      "unregisterMethodName": "unregisterHTMLAndSVGAndCANVAS"
+    },
+    "30": {
+      "type": "mousemove",
+      "target": {
+        "__isSmartRef__": true,
+        "id": 0
+      },
+      "targetMethodName": "onMouseMove",
+      "handleOnCapture": false,
+      "doNotSerialize": [
+        "node"
+      ],
+      "unregisterMethodName": "unregisterHTMLAndSVGAndCANVAS"
+    },
+    "31": {
+      "type": "contextmenu",
+      "target": {
+        "__isSmartRef__": true,
+        "id": 0
+      },
+      "targetMethodName": "onContextMenu",
+      "handleOnCapture": false,
+      "doNotSerialize": [
+        "node"
+      ],
+      "unregisterMethodName": "unregisterHTMLAndSVGAndCANVAS"
+    },
+    "32": {
+      "x": 0,
+      "y": 0,
+      "__LivelyClassName__": "Point",
+      "__SourceModuleName__": "Global"
+    },
+    "isSimplifiedRegistry": true
+  }
+}]]></meta>
+</head> 
+<body style="margin:0px"></body> 
+</html>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TrainingCenterDatabase
+  xsi:schemaLocation="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2 http://www.garmin.com/xmlschemas/TrainingCenterDatabasev2.xsd"
+  xmlns:ns5="http://www.garmin.com/xmlschemas/ActivityGoals/v1"
+  xmlns:ns3="http://www.garmin.com/xmlschemas/ActivityExtension/v2"
+  xmlns:ns2="http://www.garmin.com/xmlschemas/UserProfile/v2"
+  xmlns="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ns4="http://www.garmin.com/xmlschemas/ProfileExtension/v1">
+  <Activities>
+    <Activity Sport="Running">
+      <Id>2008-10-17T10:44:28.000Z</Id>
+      <Lap StartTime="2008-10-17T10:44:28.000Z">
+        <TotalTimeSeconds>2932.87</TotalTimeSeconds>
+        <DistanceMeters>8040.47</DistanceMeters>
+        <MaximumSpeed>9.9050951</MaximumSpeed>
+        <Calories>789</Calories>
+        <Intensity>Active</Intensity>
+        <TriggerMethod>Manual</TriggerMethod>
+        <Extensions>
+          <ns3:LX>
+            <ns3:AvgSpeed>2.741500925816691</ns3:AvgSpeed>
+          </ns3:LX>
+        </Extensions>
+      </Lap>
+      <Creator xsi:type="Device_t">
+        <Name>Forerunner 305</Name>
+        <UnitId>3409563480</UnitId>
+        <ProductID>484</ProductID>
+        <Version>
+          <VersionMajor>2</VersionMajor>
+          <VersionMinor>80</VersionMinor>
+          <BuildMajor>0</BuildMajor>
+          <BuildMinor>0</BuildMinor>
+        </Version>
+      </Creator>
+    </Activity>
+  </Activities>
+  <Author xsi:type="Application_t">
+    <Name>Garmin Connect API</Name>
+    <Build>
+      <Version>
+        <VersionMajor>0</VersionMajor>
+        <VersionMinor>0</VersionMinor>
+        <BuildMajor>0</BuildMajor>
+        <BuildMinor>0</BuildMinor>
+      </Version>
+    </Build>
+    <LangID>en</LangID>
+    <PartNumber>GAR-MINCN-CT</PartNumber>
+  </Author>
+</TrainingCenterDatabase>

@@ -1,0 +1,20 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+	<title>Lively Kernel -- New Morphic World</title>
+	<script>Config = {isNewMorphic: true};</script>
+	<script src="../../../core/lively/bootstrap.js"></script>
+	
+<meta id="WorldChangeSet"><lively:code xmlns:lively="http://www.experimentalstuff.com/Lively">
+			<lively:doit name="local requirements" automaticEval="true"><![CDATA[['lively.morphic.Complete', 'lively.morphic.Examples']]]></lively:doit>
+			<lively:doit name="initializer" automaticEval="true"><![CDATA[
+			lively.morphic.Examples.populateDemoWorld(lively.morphic.World.current());
+			]]></lively:doit>
+			<lively:doit name="no prerequired modules" automaticEval="true"><![CDATA[
+				Config.showWikiNavigator = false;
+				//Config.modulesBeforeWorldLoad = [];
+				//Config.modulesOnWorldLoad = [];
+			]]></lively:doit>
+		</lively:code></meta><meta id="LivelyJSONWorld"><![CDATA[null]]></meta></head>
+<body style="margin:0px"></body>
+</html>
