@@ -26,10 +26,6 @@ Object.extend(users.robertkrahn, {
     // module('projects.ToolTabs.Autocompletion').load();
 })();
 
-(function loadWindowNavigation() {
-    module('users.robertkrahn.WindowNavigation').load();
-})();
-
 (function loadAdvancedSyntaxHighlighting() {
     Config.set("advancedSyntaxHighlighting", true)
 })();
