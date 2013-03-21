@@ -64,7 +64,13 @@ Trait('users.robertkrahn.WorldMenuTrait', {
         return [
             ["Title", this.openPartItem.bind(this).curry('Title', 'PartsBin/Text')],
             ["Note", this.openPartItem.bind(this).curry('MetaNoteText', 'PartsBin/Text')],
-            ["Todo list", this.openPartItem.bind(this).curry('TodoList', 'PartsBin/Productivity/')]
+            ["Todo list", this.openPartItem.bind(this).curry('TodoList', 'PartsBin/Productivity/')],
+            ["Restack windows", this.restackMorphs.bind(this, function(ea) { return ea.isWindow; })],
+            ["Restack SCBs", this.restackMorphs.bind(this, function(ea) {
+                return ea.isWindow
+                    && ea.targetMorph
+                    && ea.targetMorph.ownerWidget
+                    && ea.targetMorph.ownerWidget.isSystemBrowser; })]
         ];
     },
 
@@ -74,6 +80,15 @@ Trait('users.robertkrahn.WorldMenuTrait', {
         items.detect(function(item, i) { splicePos = i; return item[0] === "Tools" });
         items.splice(splicePos, 0, ['Robert', this.robertsMenuItems()]);
         return items;
+    },
+
+    restackMorphs: function(filter) {
+        var morphs = this.submorphs.select(filter),
+            pos = this.visibleBounds().topLeft().addXY(40,40);
+        morphs.inject(pos, function(pos, win) {
+            win.setPosition(pos);
+            return pos.addXY(30,30);
+        })
     }
 
 });
