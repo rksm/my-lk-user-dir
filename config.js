@@ -105,30 +105,21 @@ Config.addOption("textDebugging", true,
                  "used in text impl to enable / disable debugging and warnings",
                  'lively.morphic.text');
 
-Config.set("defaultCodeFontSize", 8);
-// Config.set("aceDefaultTheme", "tomorrow_night");
+Config.set("defaultCodeFontSize", 10);
+Config.set("aceDefaultTheme", "chrome");
+Config.addOption("aceWorkspaceTheme", "twilight");
+Config.set("aceWorkspaceTheme", "twilight");
 
 
 Config.addOption("codeEditorUserKeySetup", function(codeEditor) {
-    // var keyHandler = aceEditor.commands;
     var e = codeEditor.aceEditor, lkKeys = codeEditor;
     codeEditor.loadAceModule(["keybinding", 'ace/keyboard/emacs'], function(emacsKeys) {
-//alert('running codeEditorUserKeySetup ' + emacsKeys.handler.commands.removeSelectionOrLine)
 
-        e.setKeyboardHandler(emacsKeys.handler);
-        var kbd = e.getKeyboardHandler();
-
+        e.keyBinding.addKeyboardHandler(emacsKeys.handler);
+        var kbd = emacsKeys.handler;
         e.session.$useEmacsStyleLineStart = false;
-
         kbd.platform = 'mac';
-        kbd.bindKeys({"C-x h": "selectall"})
-        kbd.bindKeys({"C-x C-u": "touppercase"})
-        kbd.bindKeys({"C-x C-l": "tolowercase"})
-        
-        // kbd.addCommands([{
-        //     name: 'keyboardQuit',
-        //         // exports.setMarkMode(null);
-        // }]);
+
         function joinLine(ed) {
             var pos = ed.getCursorPosition(),
                 rowString = ed.session.doc.getLine(pos.row),
@@ -138,16 +129,14 @@ Config.addOption("codeEditorUserKeySetup", function(codeEditor) {
             ed.removeToLineStart();
             ed.remove('left');
         }
-        
+
         kbd.addCommands([{
             name: 'joinLineAbove',
-            bindKey: "C-c j",
             exec: joinLine,
             multiSelectAction: 'forEach',
             readOnly: false
         }, {
             name: 'joinLineBelow',
-            bindKey: "C-c S-j",
             exec: function(ed) {
                 ed.navigateDown();
                 joinLine(ed);
@@ -156,20 +145,82 @@ Config.addOption("codeEditorUserKeySetup", function(codeEditor) {
             readOnly: false
         }, {
             name: 'duplicateLine',
-            bindKey: 'C-c p',
             exec: function(ed) { ed.execCommand('copylinesdown'); },
             multiSelectAction: 'forEach',
             readOnly: false
         }, {
             name: "movelinesup",
-            bindKey: {win: "M-Up", mac: "C-CMD-Up"},
             exec: function(editor) { editor.moveLinesUp(); }
         }, {
             name: "movelinesdown",
-            bindKey: {win: "M-Down", mac: "C-CMD-Down"},
             exec: function(editor) { editor.moveLinesDown(); }
-        }]);
+        }, {
+            name: "stringifySelection",
+            exec: function(editor) {
+                var sel = editor.selection;
+                if (!sel || sel.isEmpty()) return;
+                var range =  editor.getSelectionRange(),
+                    selString = editor.session.getTextRange(range),
+                    stringified = selString
+                        .split('\n')
+                        .invoke('replace' ,/"/g, '\\"')
+                        .invoke('replace' ,/(.+)/g, '"$1\\n"')
+                        .join('\n+ ');
+                editor.session.doc.replace(range, stringified);
+            }
+        }, {
+            name: "runtests",
+            exec: function(ed) {
+                // hack: get currently active system browser and do "run test command"
+                var win = $world.getActiveWindow();
+                var focus = $world.focusedMorph();
+                var browser = win && win.targetMorph && win.targetMorph.ownerWidget;
+                if (!browser || !browser.isSystemBrowser) {
+                    alert('Currently not in a SCB!');
+                    return;
+                }
+                var cmd = new lively.ide.RunTestMethodCommand(browser);
+                if (!cmd.isActive()) {
+                    alert('Not in a test method or class!');
+                    return;
+                }
+                cmd.runTest();
+                focus.focus();
+            }
+        }, {
+            name: "toogleSCBSizing",
+            exec: function(ed) {
+                // hack: get currently active system browser and do "run test command"
+                var win = $world.getActiveWindow(),
+                    focus = $world.focusedMorph(),
+                    browser = win && win.targetMorph && win.targetMorph.ownerWidget;
+                if (!browser || !browser.isSystemBrowser) {
+                    alert('Currently not in a SCB!'); return; }
+                var div = win.targetMorph.midResizer,
+                    ratio = div.getRelativeDivide(),
+                    newRatio = ratio <= 0.2 ? 0.45 : 0.2;
+                div.divideRelativeToParent(newRatio);
+            }
+        }
+//        {
+//            name: "dividercomment",
+//            bindKey: {win: "Ctrl-Shift-L / d", mac: "CMD-Shift-L / d"},
+//            exec: function(editor) { editor.insert("// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"); }
+//        }
+        ]);
 
+        kbd.bindKeys({"C-x h": "selectall"});
+        kbd.bindKeys({"C-x C-u": "touppercase"});
+        kbd.bindKeys({"C-x C-l": "tolowercase"});
+
+        kbd.bindKeys({"C-c j": "joinLineAbove"});
+        kbd.bindKeys({"C-c S-j": "joinLineBelow"});
+        kbd.bindKeys({'C-c p': "duplicateLine"});
+        kbd.bindKeys({'C-c C-t': "runtests"});
+        kbd.bindKeys({'S-F6': "toogleSCBSizing"});
+        kbd.bindKeys({"C-c C-s C-s": "stringifySelection"});
+        kbd.bindKeys({"C-CMD-Up": "movelinesup"});
+        kbd.bindKeys({"C-CMD-Down": "movelinesdown"});
 
         // kbd.addCommand({name: 'doit', exec: lkKeys.doit.bind(lkKeys, false) });
         // kbd.addCommand({name: 'printit', exec: lkKeys.doit.bind(lkKeys, true)});
