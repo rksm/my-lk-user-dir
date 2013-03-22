@@ -1,119 +1,222 @@
 module('users.robertkrahn.Sync').requires('lively.TestFramework').toRun(function() {
 
-module('lively.sync');
-
-Object.subclass('lively.sync.Model',
+Object.subclass('lively.Sync.ObjectHandle',
 "initializing", {
     initialize: function(options) {
-        this.name = options.name || 'unnamed model';
+        this.basePath = options.basePath || '';
         this.store = options.store;
+        this.registry = {};
         this.localStore = {};
     }
 },
-'acessing', {
-    set: function(key, val, options) {
-        options = options || {};
-        var storedVal = {value: val};
-        this.localStore[key] = storedVal;
-        this.send(key, storedVal, options);
-        return val;
+'read', {
+    get: function(path, callback) {
+        this.subscribe(path, callback, true);
     },
-
-    get: function(key) {
-        return this.localStore[key] && this.localStore[key].value;
+    
+    subscribe: function(path, callback, once) {
+        var store = this.store, registry = this.registry;
+        var i = 0;
+        function updateHandler(path, val) {
+            if (i++ > 100) { debugger; throw new Error('Endless recursion in #subscribe'); }
+            if (!registry[path] || !registry[path].include(updateHandler)) return;
+            callback(val);
+            if (!once) store.addCallback(path, updateHandler);
+        }
+        if (!registry[path]) { registry[path] = []; }; registry[path].push(updateHandler);
+        store.get(path, updateHandler) || store.addCallback(path, updateHandler);
+    },
+    
+    off: function(path) {
+        delete this.registry[path];
     }
 },
-'server communication', {
-    req: function(path) {
-        return URL.root.withFilename("nodejs/SimpleSync/" + this.name + '/' + (path || '')).asWebResource();
+'write', {
+    set: function(path, val, callback) {
+        this.store.set(path, val, {callback: callback});
     },
-    sendx: function(key, obj) {
-        var payload = JSON.stringify({value: obj, id: this.owner, expectedId: this.owner}),
-            req = this.req(key);
-        connect(req, 'status', this, "handleConflict", {updater: function($upd, stat) {
-            if (stat && stat.isDone() && stat.code() == 412) $upd(JSON.parse(this.sourceObj.xhr.responseText));
-        }});
-        return req.put(payload, 'application/json');
-    },
-    handleConflictx: function(serverResponse) {
-        lively.bindings.signal(this, 'conflict', {
-            event: 'conflict',
-            model: this.name,
-            key: serverResponse.key,
-            remote: serverResponse.value.value,
-            local: this.get(serverResponse.key)
+    
+    commit: function(path, updateFunc, callback) {
+        var handle = this;
+        this.get(path, function(val) {
+            var newVal = updateFunc(val);
+            // cancel commit?
+            if (newVal === undefined) {
+                callback(null, false, val);
+                return;
+            }
+            handle.store.set(path, newVal, {
+                callback: function(err) {
+                    if (err && err.type === 'precondition') {
+                        handle.commit(path, updateFunc, callback);
+                        return;
+                    }
+                    callback(err, !err, err ? val : newVal);
+                },
+                precondition: function() {
+                    var storeVal = handle.store[path];
+                    return storeVal === val;
+                }
+            });
         });
-    },
-    send: function(key, storageValue, options) {
-        this.store && this.store.save(key, storageValue, options.precondition, function(err, my, other) {
-
-        });
     }
 },
-'updating', {
-    subscribeTo: function(key) {
-        this.store.addDependant(this, key);
-    },
-    onChange: function(key, value) {
-        this.localStore[key] = value;
-    }
-},
+'server communication', {},
+'updating', {},
 'debugging', {
     toString: function() {
-        return 'Model(' + Objects.inspect({name: this.name, owner: this.owner})
+        return 'ObjectHandle(' + Objects.inspect({name: this.basePath})
              + ', ' + Objects.inspect(this.localStore) + ')';
     }
 });
 
-TestCase.subclass('lively.sync.test.Model',
-'running', {
-    setUp: function($super) {
-        $super();
-        this.store = {
-            save: function(key, val, precondition) {
-                if (precondition && !precondition(val, this[key])) return;
-                this[key] = val;
-                var deps = this.dependants || {};
-                Object.keys(deps).forEach(function(key) {
-                    deps[key].onChange(key, val);
-               });
-            },
-            addDependant: function(model, key) {
-                this.dependants = this.dependants || {};
-                this.dependants[key] = model;
+Object.subclass('lively.Sync.LocalStore',
+'properties', {
+    callbacks: {}
+},
+'accessing', {
+
+    set: function(path, val, options) {
+        options = options || {}, preconditionOK = true;
+        if (options.precondition) {
+            var preconditionOK = options.precondition();
+            if (!preconditionOK) {
+                options.callback && options.callback({type: 'precondition'});
+                return;
             }
         }
-        this.model = new lively.sync.Model({
-            name: this.currentSelector,
-            store: this.store
-        });
-        this.model2 = new lively.sync.Model({
-            name: this.currentSelector + '2',
-            store: this.store
-        });
+        this[path] = val;
+        var cbs = this.callbacks[path] || [];
+        this.callbacks[path] = [];
+        while (cbs && (cb = cbs.shift())) cb(path, val);
+        options.callback && options.callback(null);
+    },
+    
+    get: function(path, callback) {
+        var hasIt = this.has(path);
+        if (hasIt) callback(path, this[path]);
+        return hasIt;
+    },
+
+    addCallback: function(path, callback) {
+        var cbs = this.callbacks[path] = this.callbacks[path] || [];
+        cbs.push(callback);
     }
 },
 'testing', {
-    testGetAndSetWithStore: function() {
-        var state = {bar: 23};
-        this.model.set("foo", state);
-        this.assertEqualState(state, this.model.get('foo'), 'model');
-        this.assertEqualState(state, this.store.foo.value, 'server');
-    },
 
-    testChangeGetsPropagated: function() {
-        var state = {bar: 23};
-        this.model2.subscribeTo('foo');
-        this.model.set("foo", state);
-        this.assertEqualState(state, this.model2.get('foo'), 'model2 ' + Objects.inspect(this.model2.get('foo')));
-    },
-
-    testSaveWithPrecondition: function() {
-        this.store.foo = {value: 3};
-        this.model.set("foo", 4, {precondition: function(my, other) { return other.value === 3; }});
-        this.assertEquals(4, this.store.foo.value);
-        this.model.set("foo", 5, {precondition: function(my, other) { return other.value === 3; }});
-        this.assertEquals(4, this.store.foo.value);
+    has: function(path) {
+        return !!this.hasOwnProperty(path);
     }
+
 });
+
+TestCase.subclass('lively.Sync.test.ObjectHandleInterface',
+'running', {
+    setUp: function($super) {
+        $super(); 
+        this.store = new lively.Sync.LocalStore();
+        this.rootHandle = new lively.Sync.ObjectHandle({store: this.store});
+    }
+},
+'testing', {
+    
+    testGetValue: function() {
+        this.store.set('foo', 23);
+        var result = [];
+        this.rootHandle.get('foo', function(val) { result.push(val); });
+        this.assertEqualState([23], result);
+    },
+    
+    
+    testGetWhenAvailable: function() {
+        var result = [];
+        this.rootHandle.get('foo', function(val) { result.push(val); });
+        this.assertEqualState([], result);
+        this.store.set('foo', 23);
+        this.assertEqualState([23], result);
+    },
+
+    testetTwice: function() {
+        var result1 = [], result2 = [];
+        this.rootHandle.get('foo', function(val) { result1.push(val); });
+        this.rootHandle.get('foo', function(val) { result2.push(val); });
+        this.store.set('foo', 23);
+        this.assertEqualState([23], result1);
+        this.assertEqualState([23], result2);
+        this.store.set('foo', 24);
+        this.assertEqualState([23], result1);
+        this.assertEqualState([23], result2);
+    },
+    
+    testOn: function() {
+        var result = [];
+        this.store.set('foo', 23);
+        this.rootHandle.subscribe('foo', function(val) { result.push(val); });
+        this.assertEqualState([23], result);
+        this.store.set('foo', 42);
+        this.assertEqualState([23, 42], result);
+    },
+    
+    testOnOff: function() {
+        var result = [];
+        this.store.set('foo', 23);
+        this.rootHandle.subscribe('foo', function(val) { result.push(val); });
+        this.assertEqualState([23], result);
+        this.rootHandle.off('foo');
+        this.store.set('foo', 42);
+        this.assertEqualState([23], result);
+    },
+    
+    testSet: function() {
+        var done;
+        this.rootHandle.set('foo', 23, function(err) { done = true });
+        this.assert(done, 'not done?');
+        this.assertEqualState(23, this.store.foo);
+    },
+    
+    testCommit: function() {
+        var done, writtenVal, preVal;
+        this.store.foo = 22;
+        this.rootHandle.commit(
+            'foo',
+            function(oldVal) { preVal = oldVal; return oldVal + 1; },
+            function(err, committed, val) { done = committed; writtenVal = val; });
+        this.assertEquals(22, preVal, 'val before set');
+        this.assert(done, 'not committed?');
+        this.assertEquals(23, this.store.foo);
+        this.assertEquals(23, writtenVal);
+    },
+    
+    testCommitCancels: function() {
+        var done, written, eventualVal;
+        this.store.foo = 22;
+        this.rootHandle.commit(
+            'foo',
+            function(oldVal) { return undefined; },
+            function(err, committed, val) { done = true; written = committed; eventualVal = val; });
+        this.assert(done, 'not done?');
+        this.assert(!written, 'committed?');
+        this.assertEquals(22, this.store.foo);
+        this.assertEquals(22, eventualVal);
+    },
+    
+    testCommitWithConflict: function() {
+        var done, written, eventualVal;
+        var store = this.store;
+        store.set('foo', 22);
+        this.rootHandle.commit(
+            'foo',
+            function(oldVal) { if (oldVal === 22) store.set('foo', 41); return oldVal + 1; },
+            function(err, committed, val) { done = true; written = committed; eventualVal = val; });
+        this.assert(done, 'not done?');
+        this.assert(written, 'not committed?');
+        this.assertEquals(42, this.store.foo);
+        this.assertEquals(42, eventualVal);
+    },
+    
+    testChildAccess: function() {}
+
+});
+
 }) // end of module
