@@ -120,7 +120,7 @@ function setupEmacsKeyboardHandler(editor, handler) {
     handler.bindKey = function(key, command) {
         if (!key)
             return;
-    
+
         var ckb = this.commmandKeyBinding;
         key.split("|").forEach(function(keyPart) {
             keyPart = keyPart.toLowerCase();
@@ -138,12 +138,12 @@ function setupEmacsKeyboardHandler(editor, handler) {
             }, []).forEach(function(keyPart) {
                 if (!ckb[keyPart]) ckb[keyPart] = "null";
             });
-    
+
         }, this);
     }
-    
+
     // debugging:
-    // k.handleKeyboard = handler.handleKeyboard.getOriginal().wrap(function(proceed, data, hashId, key, keyCode) { 
+    // k.handleKeyboard = handler.handleKeyboard.getOriginal().wrap(function(proceed, data, hashId, key, keyCode) {
     //     // show(data.keyChain);
     //     // disconnect(data, 'keyChain', Global, 'show', {
     //     //     updater: function($upd, val) { keyChains.push(val); $upd(val) },
@@ -308,7 +308,7 @@ Config.addOption("codeEditorUserKeySetup", function(codeEditor) {
 
         kbd.bindKeys({"S-CMD-l S-g": "doBrowseImplementors"});
         kbd.bindKeys({"S-CMD-l g": "doBrowseImplementors"});
-        
+
         kbd.bindKeys({"S-CMD-l l t": "toggletruncatelines"});
 
         kbd.bindKeys({"S-CMD-l / d": "dividercomment"});
