@@ -105,21 +105,72 @@ Config.addOption("textDebugging", true,
                  "used in text impl to enable / disable debugging and warnings",
                  'lively.morphic.text');
 
-Config.set("defaultCodeFontSize", 10);
+Config.set("defaultCodeFontSize", 12);
 Config.set("aceDefaultTheme", "chrome");
 Config.addOption("aceWorkspaceTheme", "twilight");
 Config.set("aceWorkspaceTheme", "twilight");
+Config.set("aceDefaultLineWrapping", false);
 
+function setupEmacsKeyboardHandler(editor, handler) {
+    if (editor.getKeyboardHandler() !== handler)
+        editor.keyBinding.addKeyboardHandler(handler);
+    editor.session.$useEmacsStyleLineStart = false;
+    handler.platform = 'mac';
+
+    handler.bindKey = function(key, command) {
+        if (!key)
+            return;
+    
+        var ckb = this.commmandKeyBinding;
+        key.split("|").forEach(function(keyPart) {
+            keyPart = keyPart.toLowerCase();
+            ckb[keyPart] = command;
+            // register all partial key ombos as null commands
+            // to be able to activate key combos with arbitrary length
+            // Example: if keyPart is "C-c C-l t" then "C-c C-l t" will
+            // get command assigned and "C-c" and "C-c C-l" will get
+            // a null command assigned in this.commmandKeyBinding. For
+            // the lookup logic see handleKeyboard()
+            var keyParts = keyPart.split(" ").slice(0,-1);
+            keyParts.reduce(function(keyMapKeys, keyPart, i) {
+                var prefix = keyMapKeys[i-1] ? keyMapKeys[i-1] + ' ' : '';
+                return keyMapKeys.concat([prefix + keyPart]);
+            }, []).forEach(function(keyPart) {
+                if (!ckb[keyPart]) ckb[keyPart] = "null";
+            });
+    
+        }, this);
+    }
+    
+    // debugging:
+    // k.handleKeyboard = handler.handleKeyboard.getOriginal().wrap(function(proceed, data, hashId, key, keyCode) { 
+    //     // show(data.keyChain);
+    //     // disconnect(data, 'keyChain', Global, 'show', {
+    //     //     updater: function($upd, val) { keyChains.push(val); $upd(val) },
+    //     //     varMapping: {keyChains: keyChains}
+    //     // });
+    // var keyChainEnter = data.keyChain.length > 0 && data.keyChain;
+    // if (keyChainEnter) debugger
+    //     var result = proceed(data, hashId, key, keyCode)
+    // var keyChainExit = data.keyChain.length > 0 && data.keyChain;
+    // (keyChainExit || keyChainEnter) && show("keyChain enter: %s, exit: %s, command: %o",
+    //     keyChainEnter, keyChainExit, result);
+    //     // show("%s -> %o", data.keyChain, result)
+    //     return result;
+    // });
+}
 
 Config.addOption("codeEditorUserKeySetup", function(codeEditor) {
     var e = codeEditor.aceEditor, lkKeys = codeEditor;
+    // if (codeEditor.hasRobertsKeys) return;
     codeEditor.loadAceModule(["keybinding", 'ace/keyboard/emacs'], function(emacsKeys) {
-
-        e.keyBinding.addKeyboardHandler(emacsKeys.handler);
+        codeEditor.hasRobertsKeys = true;
+        setupEmacsKeyboardHandler(e, emacsKeys.handler);
         var kbd = emacsKeys.handler;
-        e.session.$useEmacsStyleLineStart = false;
-        kbd.platform = 'mac';
 
+        // ------------------
+        // key command setup
+        // ------------------
         function joinLine(ed) {
             var pos = ed.getCursorPosition(),
                 rowString = ed.session.doc.getLine(pos.row),
@@ -131,6 +182,20 @@ Config.addOption("codeEditorUserKeySetup", function(codeEditor) {
         }
 
         kbd.addCommands([{
+            name: 'markword',
+            exec: function(ed) {
+                var sel = ed.selection;
+                var range = sel.getRange();
+                ed.moveCursorToPosition(range.end);
+                sel.moveCursorWordRight();
+                range.setEnd(sel.lead.row, sel.lead.column);
+                // sel.selectToPosition(range.start);
+                sel.setRange(range, true);
+                // sel.setRange(ace.require('ace/range').Range.fromPoints(range.start, sel.lead), true);
+            },
+            multiSelectAction: 'forEach',
+            readOnly: false
+        }, {
             name: 'joinLineAbove',
             exec: joinLine,
             multiSelectAction: 'forEach',
@@ -155,6 +220,13 @@ Config.addOption("codeEditorUserKeySetup", function(codeEditor) {
             name: "movelinesdown",
             exec: function(editor) { editor.moveLinesDown(); }
         }, {
+            name: "toggletruncatelines",
+            exec: function(editor) {
+                var lineWrapping = !codeEditor.getLineWrapping();
+                show("Truncating lines %s", lineWrapping ? "enabled" : 'disabled');
+                codeEditor.setLineWrapping(lineWrapping);
+            }
+        }, {
             name: "stringifySelection",
             exec: function(editor) {
                 var sel = editor.selection;
@@ -168,6 +240,9 @@ Config.addOption("codeEditorUserKeySetup", function(codeEditor) {
                         .join('\n+ ');
                 editor.session.doc.replace(range, stringified);
             }
+        }, {
+           name: "dividercomment",
+           exec: function(editor) { editor.insert("// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"); }
         }, {
             name: "runtests",
             exec: function(ed) {
@@ -201,31 +276,53 @@ Config.addOption("codeEditorUserKeySetup", function(codeEditor) {
                     newRatio = ratio <= 0.2 ? 0.45 : 0.2;
                 div.divideRelativeToParent(newRatio);
             }
-        }
-//        {
-//            name: "dividercomment",
-//            bindKey: {win: "Ctrl-Shift-L / d", mac: "CMD-Shift-L / d"},
-//            exec: function(editor) { editor.insert("// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"); }
-//        }
-        ]);
+        },
+        // commandline
+        {
+            name: 'returnorcommandlineinput',
+            exec: function(ed) {
+                if (!codeEditor.isCommandLine) { ed.insert("\n"); return; }
+                codeEditor.commandLineInput && codeEditor.commandLineInput(ed.getValue());
+            }
+        }]);
 
-        kbd.bindKeys({"C-x h": "selectall"});
+        kbd.bindKeys({"S-M-2": "markword"});
+
         kbd.bindKeys({"C-x C-u": "touppercase"});
         kbd.bindKeys({"C-x C-l": "tolowercase"});
 
+        // lines
+        kbd.bindKeys({"C-CMD-Up": "movelinesup"});
+        kbd.bindKeys({"C-CMD-P": "movelinesup"});
+        kbd.bindKeys({"C-CMD-Down": "movelinesdown"});
+        kbd.bindKeys({"C-CMD-N": "movelinesdown"});
         kbd.bindKeys({"C-c j": "joinLineAbove"});
         kbd.bindKeys({"C-c S-j": "joinLineBelow"});
         kbd.bindKeys({'C-c p': "duplicateLine"});
+
+        kbd.bindKeys({"S-CMD-l j s s t r": "stringifySelection"});
+
+        // SCb
         kbd.bindKeys({'C-c C-t': "runtests"});
         kbd.bindKeys({'S-F6': "toogleSCBSizing"});
-        kbd.bindKeys({"C-c C-s C-s": "stringifySelection"});
-        kbd.bindKeys({"C-CMD-Up": "movelinesup"});
-        kbd.bindKeys({"C-CMD-Down": "movelinesdown"});
 
-        // kbd.addCommand({name: 'doit', exec: lkKeys.doit.bind(lkKeys, false) });
-        // kbd.addCommand({name: 'printit', exec: lkKeys.doit.bind(lkKeys, true)});
-        // kbd.addCommand({name: 'doListProtocol', exec: lkKeys.doListProtocol.bind(lkKeys)});
-        // kbd.bindKeys({"s-d": 'doit', "s-p": 'printit', "S-s-p": 'doListProtocol'});
+        kbd.bindKeys({"S-CMD-l S-g": "doBrowseImplementors"});
+        kbd.bindKeys({"S-CMD-l g": "doBrowseImplementors"});
+        
+        kbd.bindKeys({"S-CMD-l l t": "toggletruncatelines"});
+
+        kbd.bindKeys({"S-CMD-l / d": "dividercomment"});
+
+        // evaluation
+        kbd.bindKeys({"C-x C-e": "printit"});
+
+        kbd.bindKeys({"C-x h": "selectall"});
+        kbd.bindKeys({"CMD-f": 'moveForwardToMatching'});
+        kbd.bindKeys({"CMD-b": 'moveBackwardToMatching'});
+        kbd.bindKeys({"S-CMD-f": 'selectToMatchingForward'});
+        kbd.bindKeys({"S-CMD-b": 'selectToMatchingBackward'});
+
+        kbd.bindKeys({"Return": 'returnorcommandlineinput'})
     });
 });
 
