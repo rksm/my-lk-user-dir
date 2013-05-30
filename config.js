@@ -202,6 +202,45 @@ function setupEmacsKeyboardHandler(editor, handler) {
     // });
 }
 
+                command: iyGoToCharHandler.commands.moveForwardTo,
+                args: {backwards: options.backwards, needle: key, preventScroll: true, wrap: false}};
+        }
+
+        iyGoToCharHandler.attach = function(editor) {
+            debug && show('iygotochar installed');
+            this.$startPos = editor.getCursorPosition();
+        }
+        iyGoToCharHandler.detach = function(editor) {
+            debug && show('iygotochar uninstalled');
+            if (this.$startPos && editor.pushEmacsMark) editor.pushEmacsMark(this.$startPos, false);
+        }
+
+        iyGoToCharHandler.addCommands([{
+            name: 'moveForwardTo',
+            exec: function(ed, options) {
+                var sel = ed.selection,
+                    range = sel.getRange();
+                if (options.backwards) sel.moveCursorLeft();
+                options.start = sel.getSelectionLead();
+                var foundRange = ed.find(options);
+                if (!foundRange) {
+                    if (options.backwards) sel.moveCursorRight();
+                    return;
+                }
+                ed.selection.moveCursorToPosition(foundRange.end);
+            }
+        }]);
+        editor.keyBinding.addKeyboardHandler(iyGoToCharHandler);
+    }
+
+    keyboardHandler.addCommands([{name: 'iyGoToChar', exec: iyGoToChar}]);
+    keyboardHandler.bindKeys({"CMD-.": {command: 'iyGoToChar', args: {backwards: false}}});
+    keyboardHandler.bindKeys({"CMD-,": {command: 'iyGoToChar', args: {backwards: true}}});
+}
+
+
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
 Config.addOption("codeEditorUserKeySetup", function(codeEditor) {
     var e = codeEditor.aceEditor, lkKeys = codeEditor;
     // if (codeEditor.hasRobertsKeys) return;
