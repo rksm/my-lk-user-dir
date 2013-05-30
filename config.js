@@ -307,6 +307,50 @@ Config.addOption("codeEditorUserKeySetup", function(codeEditor) {
             multiSelectAction: 'forEach',
             readOnly: false
         }, {
+            name: 'jumpToMark',
+            exec: function(ed) {
+                var sel = ed.selection;
+                var p = sel.isEmpty() ? ed.getLastEmacsMark() : sel.anchor;
+                p && ed.moveCursorToPosition(p);
+            },
+            readOnly: true
+        }, {
+            name: 'pushMark',
+            exec: function(ed) {
+                ed.pushEmacsMark(ed.getCursorPosition());
+            },
+            readOnly: true
+        }, {
+            name: 'moveCursorUpwardQuickly',
+            exec: function(ed) {
+                var currentPos = ed.getCursorPosition(),
+                    firstRow = ed.renderer.getFirstFullyVisibleRow(),
+                    lastRow = ed.renderer.getLastFullyVisibleRow(),
+                    middleRow = firstRow+Math.floor((lastRow - firstRow)/2);
+                if (currentPos.row <= firstRow) return;
+                newPos = currentPos;
+                if (currentPos.row <= middleRow) newPos.row = firstRow;
+                else if (currentPos.row <= lastRow) newPos.row = middleRow;
+                else newPos.row = lastRow;
+                ed.selection.moveCursorToPosition(newPos)
+            },
+            readOnly: true
+        }, {
+            name: 'moveCursorDownwardQuickly',
+            exec: function(ed) {
+                var currentPos = ed.getCursorPosition(),
+                    firstRow = ed.renderer.getFirstFullyVisibleRow(),
+                    lastRow = ed.renderer.getLastFullyVisibleRow(),
+                    middleRow = firstRow+Math.floor((lastRow - firstRow)/2);
+                newPos = currentPos;
+                if (currentPos.row < firstRow) newPos.row = firstRow;
+                else if (currentPos.row < middleRow) newPos.row = middleRow;
+                else if (currentPos.row < lastRow) newPos.row = lastRow;
+                else return;
+                ed.selection.moveCursorToPosition(newPos);
+            },
+            readOnly: true
+        }, {
             name: 'joinLineAbove',
             exec: joinLine,
             multiSelectAction: 'forEach',
@@ -352,8 +396,33 @@ Config.addOption("codeEditorUserKeySetup", function(codeEditor) {
                 editor.session.doc.replace(range, stringified);
             }
         }, {
+            name: "openDiffer",
+            exec: function(editor) {
+                require('lively.ide.tools.Differ').toRun(function() {
+                    var differ = lively.BuildSpec('lively.ide.tools.Differ').createMorph().openInWorld();
+                    differ.setPositionCentered($world.visibleBounds().center());
+                    differ.comeForward();
+                });
+            }
+        }, {
+            name: "printinspect",
+            exec: function(editor, args) {
+                inspect(args)
+                // show("xxx%s", );
+            },
+            multiSelectAction: 'forEach'
+        }, {
+            name: 'doBrowseAtPointOrRegion',
+            exec: function(editor) {
+                doBrowseAtPointOrRegion(codeEditor);
+            },
+            multiSelectAction: 'forEach'
+        }, {
            name: "dividercomment",
-           exec: function(editor) { editor.insert("// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"); }
+           exec: function(editor) {
+               editor.insert("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-");
+               editor.toggleCommentLines();
+            }
         }, {
             name: "runtests",
             exec: function(ed) {
@@ -409,6 +478,30 @@ Config.addOption("codeEditorUserKeySetup", function(codeEditor) {
                 }
                 win.setBounds(bounds);
             }
+        }, {
+            name: "describeKey",
+            exec: function(ed) {
+                function uninstall() {
+                    commandExecHandler && ed.commands.removeEventListener('exec', commandExecHandler);
+                    ed.keyBinding.$callKeyboardHandlers = ed.keyBinding.$callKeyboardHandlers.getOriginal();
+                }
+                var origCallKeyboardHandlers = ed.keyBinding.$callKeyboardHandlers,
+                    lastKeys = [],
+                    commandExecHandler = ed.commands.addEventListener('exec', function(e) {
+                        uninstall();
+                        e.stopPropagation();
+                        e.preventDefault();
+                        show('%s: %o', lastKeys.join(' '), e.command);
+                        return true;
+                    });
+                ed.keyBinding.$callKeyboardHandlers = ed.keyBinding.$callKeyboardHandlers.wrap(function(proceed, hashId, keyString, keyCode, e) {
+                    if (e) {
+                        lively.morphic.EventHandler.prototype.patchEvent(e);
+                        lastKeys.push(e.getKeyString({ignoreModifiersIfNoCombo: true}));
+                    }
+                    return proceed(hashId, keyString, keyCode, e);
+                });
+            }
         },
         // commandline
         {
@@ -425,12 +518,20 @@ Config.addOption("codeEditorUserKeySetup", function(codeEditor) {
         kbd.bindKeys({"S-CMD-l r e s t": {command: "resizeWindow", args: 'top'}});
         kbd.bindKeys({"S-CMD-l r e s b": {command: "resizeWindow", args: 'bottom'}});
         kbd.bindKeys({"S-CMD-l r e s s": {command: "resizeWindow", args: 'small'}});
+
+        kbd.bindKeys({"CMD-1": "pushMark"});
+        kbd.bindKeys({"CMD-2": "jumpToMark"});
         kbd.bindKeys({"S-M-2": "markword"});
+
+        kbd.bindKeys({"C-Up": "moveCursorUpwardQuickly"});
+        kbd.bindKeys({"C-Down": "moveCursorDownwardQuickly"});
 
         kbd.bindKeys({"C-x C-u": "touppercase"});
         kbd.bindKeys({"C-x C-l": "tolowercase"});
 
         // lines
+        kbd.bindKeys({"C-M-P": "addCursorAbove"});
+        kbd.bindKeys({"C-M-N": "addCursorBelow"});
         kbd.bindKeys({"C-CMD-Up": "movelinesup"});
         kbd.bindKeys({"C-CMD-P": "movelinesup"});
         kbd.bindKeys({"C-CMD-Down": "movelinesdown"});
@@ -440,11 +541,13 @@ Config.addOption("codeEditorUserKeySetup", function(codeEditor) {
         kbd.bindKeys({'C-c p': "duplicateLine"});
 
         kbd.bindKeys({"S-CMD-l j s s t r": "stringifySelection"});
+        kbd.bindKeys({"S-CMD-l d i f f": "openDiffer"});
 
         // SCb
         kbd.bindKeys({'C-c C-t': "runtests"});
         kbd.bindKeys({'S-F6': "toogleSCBSizing"});
 
+        kbd.bindKeys({"M-.": "doBrowseAtPointOrRegion"});
         kbd.bindKeys({"S-CMD-l S-g": "doBrowseImplementors"});
         kbd.bindKeys({"S-CMD-l g": "doBrowseImplementors"});
 
@@ -454,6 +557,9 @@ Config.addOption("codeEditorUserKeySetup", function(codeEditor) {
 
         // evaluation
         kbd.bindKeys({"C-x C-e": "printit"});
+        // kbd.bindKeys({"CMD-i": "printinspect"});
+
+        kbd.bindKeys({"C-h k": "describeKey"});
 
         kbd.bindKeys({"C-x h": "selectall"});
         kbd.bindKeys({"CMD-f": 'moveForwardToMatching'});
@@ -462,6 +568,8 @@ Config.addOption("codeEditorUserKeySetup", function(codeEditor) {
         kbd.bindKeys({"S-CMD-b": 'selectToMatchingBackward'});
 
         kbd.bindKeys({"Return": 'returnorcommandlineinput'})
+
+        setupIyGoToChar(kbd);
     });
 });
 
