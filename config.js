@@ -2,6 +2,46 @@ module('users.robertkrahn.config').requires('lively.Traits').toRun(function() {
 
 Config.set('maxStatusMessages', 10);
 
+
+Trait('users.robertkrahn.CodeEditorRememberTrait', {
+    codeEditorMenuItems: function () {
+        var items = lively.ide.CodeEditor.prototype.codeEditorMenuItems.call(this),
+            editor = this;
+        // remember
+        var rememberItems = ['Remember...', []];
+        items.push(rememberItems);
+
+        var snippets;
+        function getSnippets() {
+            if (snippets) return snippets;
+            return snippets = JSON.parse(localStorage.robertsSnippets = localStorage.robertsSnippets || '{}');
+        }
+
+        function saveSnippet(name, content) {
+            getSnippets();
+            snippets[name] = content;
+            localStorage.robertsSnippets = JSON.stringify(snippets);
+        }
+
+        rememberItems[1].push(['Remember snippet', function() {
+            $world.prompt('Name for snippet?', function(input) {
+                if (!input) { show('snippet not saved'); return }
+                var name = input.replace(/[\s\\\/]+/g, '-');
+                saveSnippet(name, range.isEmpty() ? editor.textString : this.getTextRange(range));
+            })
+            var range = editor.getSelectionRangeAce()
+            self.addEvalMarker();
+        }]);
+
+        return items;
+    }
+
+});
+
+
+(function setupRememeber() {
+})();
+
 (function setupDebuggingStuff() {
 return;
     lively.whenLoaded(function(world) {
