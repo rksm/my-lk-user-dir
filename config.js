@@ -202,6 +202,36 @@ function setupEmacsKeyboardHandler(editor, handler) {
     // });
 }
 
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+setupIyGoToChar = function setupIyGoToChar(keyboardHandler) {
+    var debug = false;
+    function iyGoToChar(editor, options) {
+        var HashHandler = lively.ide.ace.require("ace/keyboard/hash_handler").HashHandler,
+            iyGoToCharHandler = new HashHandler();
+
+        iyGoToCharHandler.handleKeyboard = function(data, hashId, key, keyCode) {
+            // first invocation: if a key is pressed remember this char as the char
+            // to search for
+            // subsequent invocations: when the same char is pressed, move to the
+            // next found location of that char, other wise deactivate this mode
+
+            // shift key or raw event
+            if (hashId === 0 || hashId === 4) return {command: 'null', passEvent: true};
+            if (!this.charToFind) {
+                if (key && hashId === -1) {
+                    this.charToFind = key;
+                } else {
+                    editor.keyBinding.removeKeyboardHandler(this);
+                    return null;
+                }
+            }
+            if (key !== this.charToFind) {
+                debug && show('input was %s and not %s, exiting', key, this.charToFind);
+                editor.keyBinding.removeKeyboardHandler(this);
+                return null;
+            }
+            return {
                 command: iyGoToCharHandler.commands.moveForwardTo,
                 args: {backwards: options.backwards, needle: key, preventScroll: true, wrap: false}};
         }
