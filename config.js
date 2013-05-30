@@ -181,30 +181,6 @@ function setupEmacsKeyboardHandler(editor, handler) {
     editor.session.$useEmacsStyleLineStart = false;
     handler.platform = 'mac';
 
-    handler.bindKey = function(key, command) {
-        if (!key)
-            return;
-
-        var ckb = this.commmandKeyBinding;
-        key.split("|").forEach(function(keyPart) {
-            keyPart = keyPart.toLowerCase();
-            ckb[keyPart] = command;
-            // register all partial key ombos as null commands
-            // to be able to activate key combos with arbitrary length
-            // Example: if keyPart is "C-c C-l t" then "C-c C-l t" will
-            // get command assigned and "C-c" and "C-c C-l" will get
-            // a null command assigned in this.commmandKeyBinding. For
-            // the lookup logic see handleKeyboard()
-            var keyParts = keyPart.split(" ").slice(0,-1);
-            keyParts.reduce(function(keyMapKeys, keyPart, i) {
-                var prefix = keyMapKeys[i-1] ? keyMapKeys[i-1] + ' ' : '';
-                return keyMapKeys.concat([prefix + keyPart]);
-            }, []).forEach(function(keyPart) {
-                if (!ckb[keyPart]) ckb[keyPart] = "null";
-            });
-
-        }, this);
-    }
 
     // debugging:
     // k.handleKeyboard = handler.handleKeyboard.getOriginal().wrap(function(proceed, data, hashId, key, keyCode) {
