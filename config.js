@@ -2,6 +2,28 @@ module('users.robertkrahn.config').requires('lively.Traits').toRun(function() {
 
 Config.set('maxStatusMessages', 10);
 
+(function setupDebuggingStuff() {
+return;
+    lively.whenLoaded(function(world) {
+        world.addScript(function onBlur(evt) {
+            // clearInterval(this.checkFocusInterval);
+            // delete this.checkFocusInterval;
+            $super(evt);
+            var world = this;
+            if (this.checkFocusInterval) return;
+            this.checkFocusInterval = setInterval(function() {
+                if (!lively.morphic.Morph.focusedMorph()) {
+                    show('no morphs focused!');
+                    world.focus();
+                } else {
+                    clearInterval(world.checkFocusInterval);
+                    delete world.checkFocusInterval;
+                }
+            }, 1000);
+        });
+    });
+})();
+
 Object.extend(users.robertkrahn, {
     currentBaseURL: document.URL.toString().split('&#')[0],
     connectEmacs: function(optSwankhost) {
