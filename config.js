@@ -95,6 +95,66 @@ Trait('users.robertkrahn.WorldMenuTrait', {
 
 });
 
+(function setupServerSearch() {
+    module('lively.ide.CommandLineInterface').load();
+    Global.$search = function(string, optPathOrModule, thenDoOrMarker) {
+        var path = Object.isString(optPathOrModule) ? optPathOrModule : 'lively';
+        path = path.replace(/\./g, '/');
+        var cmd = Strings.format("find %s -iname '*js' -exec grep -inH %s '{}' \\; ",
+            '$WORKSPACE_LK/core/' + path,
+            string);
+        // var cmd = 'grep -nR ' + string + ' $WORKSPACE_LK/core/' + path + '/*.js';
+        var thenDo = Object.isFunction(thenDoOrMarker) && thenDoOrMarker;
+        var marker = !thenDo && thenDoOrMarker;
+        var focused = lively.morphic.Morph.focusedMorph();
+        var codeEditor = focused instanceof lively.morphic.CodeEditor && focused;
+        lively.shell.exec(cmd, function(r) {
+            var out = r.getStdout().split('\n')
+                .map(function(line) { return line.slice(line.indexOf('/core') + 6); })
+                .join('\n');
+            if (out.length === 0) out = 'nothing found;'
+            if (marker) { marker.textString = out }
+            else if (focused) {
+                focused.printObject(null, out);
+            }
+            thenDo && thenDo(out);
+        });
+        return '';
+    }
+
+    Global.doBrowseAtPointOrRegion = function(codeEditor) {
+        try { 
+            var str = codeEditor.getSelectionOrLineString(),
+                spec = extractBrowseRefFromGrepLine(str);
+            if (!spec) {
+                show("cannot extract browse ref from %s", str);
+            } else {
+                doBrowse(spec);
+            }
+        } catch(e) {
+            show('failure in doBrowseAtPointOrRegion: %s', e.stack);
+        }
+        function getCurrentBrowser(spec) {
+            var focused = lively.morphic.Morph.focusedMorph(),
+                win = focused && focused.getWindow(),
+                widget = win && win.targetMorph.ownerWidget,
+                browser = widget && widget.isSystemBrowser ? widget : null;
+            return browser;
+        }
+        function doBrowse(spec) {
+            var modWrapper =lively.ide.sourceDB().addModule(spec.fileName),
+                fFragment = modWrapper.ast().getSubElementAtLine(spec.line, 20/*depth*/);
+            fFragment && fFragment.browseIt(getCurrentBrowser())
+        }
+        function extractBrowseRefFromGrepLine(line) {
+            // extractBrowseRefFromGrepLine("lively/morphic/HTML.js:235:    foo")
+            // = {fileName: "lively/morphic/HTML.js", line: 235}
+            var fileMatch = line.match(/((?:[^\/\s]+\/)*[^\.]+\.[^:]+):([0-9]+)/);
+            return fileMatch ? {fileName: fileMatch[1], line: Number(fileMatch[2])} : null;
+        }
+    }
+})();
+
 lively.whenLoaded(function() {
     Trait('users.robertkrahn.WorldMenuTrait').applyTo($world, {override: ['morphMenuItems']});
 
@@ -112,6 +172,8 @@ Config.set("aceDefaultTheme", "chrome");
 Config.addOption("aceWorkspaceTheme", "twilight");
 Config.set("aceWorkspaceTheme", "twilight");
 Config.set("aceDefaultLineWrapping", false);
+
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 function setupEmacsKeyboardHandler(editor, handler) {
     if (editor.getKeyboardHandler() !== handler)
