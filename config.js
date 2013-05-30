@@ -86,7 +86,7 @@ Trait('users.robertkrahn.WorldMenuTrait', {
 
     restackMorphs: function(filter) {
         var morphs = this.submorphs.select(filter),
-            pos = this.visibleBounds().topLeft().addXY(40,40);
+            pos = this.hands[0].getPosition();
         morphs.inject(pos, function(pos, win) {
             win.setPosition(pos);
             return pos.addXY(30,30);
