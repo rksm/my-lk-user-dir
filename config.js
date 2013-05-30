@@ -183,18 +183,20 @@ function setupEmacsKeyboardHandler(editor, handler) {
 
 
     // debugging:
-    // k.handleKeyboard = handler.handleKeyboard.getOriginal().wrap(function(proceed, data, hashId, key, keyCode) {
+    handler.handleKeyboard = handler.handleKeyboard.getOriginal();
+    // handler.handleKeyboard = handler.handleKeyboard.getOriginal().wrap(function(proceed, data, hashId, key, keyCode) {
     //     // show(data.keyChain);
     //     // disconnect(data, 'keyChain', Global, 'show', {
     //     //     updater: function($upd, val) { keyChains.push(val); $upd(val) },
     //     //     varMapping: {keyChains: keyChains}
     //     // });
-    // var keyChainEnter = data.keyChain.length > 0 && data.keyChain;
-    // if (keyChainEnter) debugger
-    //     var result = proceed(data, hashId, key, keyCode)
-    // var keyChainExit = data.keyChain.length > 0 && data.keyChain;
-    // (keyChainExit || keyChainEnter) && show("keyChain enter: %s, exit: %s, command: %o",
-    //     keyChainEnter, keyChainExit, result);
+    // // var keyChainEnter = data.keyChain.length > 0 && data.keyChain;
+    // // if (keyChainEnter) debugger
+    // show("data %s, hashId %s, key %s, keyCode %s", data, hashId, key, keyCode);
+    // var result = proceed(data, hashId, key, keyCode);
+    // // var keyChainExit = data.keyChain.length > 0 && data.keyChain;
+    // // (keyChainExit || keyChainEnter) && show("keyChain enter: %s, exit: %s, command: %o",
+    //     // keyChainEnter, keyChainExit, result);
     //     // show("%s -> %o", data.keyChain, result)
     //     return result;
     // });
