@@ -387,6 +387,28 @@ Config.addOption("codeEditorUserKeySetup", function(codeEditor) {
                     newRatio = ratio <= 0.2 ? 0.45 : 0.2;
                 div.divideRelativeToParent(newRatio);
             }
+        }, {
+            name: "resizeWindow",
+            exec: function(ed, how) {
+                var bounds = $world.visibleBounds().insetBy(20);
+                var win = $world.getActiveWindow();
+                if (!win) return;
+                switch(how) {
+                    case 'fullscreen': break;
+                    case 'right': bounds = bounds.withX(bounds.x + bounds.width/2);
+                    case 'left': bounds = bounds.withWidth(bounds.width/2); break;
+                    case 'bottom': bounds = bounds.withY(bounds.y + bounds.height/2);
+                    case 'top': bounds = bounds.withHeight(bounds.height/2); break;
+                    case 'small': bounds = win.normalBounds || pt(500,400).extentAsRectangle().withCenter(bounds.center()); break;
+                    default: return;
+                }
+                if (how === 'small') {
+                    delete win.normalBounds;
+                } else if (!win.normalBounds) {
+                    win.normalBounds = win.bounds();
+                }
+                win.setBounds(bounds);
+            }
         },
         // commandline
         {
@@ -397,6 +419,12 @@ Config.addOption("codeEditorUserKeySetup", function(codeEditor) {
             }
         }]);
 
+        kbd.bindKeys({"S-CMD-l r e s f": {command: "resizeWindow", args: 'fullscreen'}});
+        kbd.bindKeys({"S-CMD-l r e s l": {command: "resizeWindow", args: 'left'}});
+        kbd.bindKeys({"S-CMD-l r e s r": {command: "resizeWindow", args: 'right'}});
+        kbd.bindKeys({"S-CMD-l r e s t": {command: "resizeWindow", args: 'top'}});
+        kbd.bindKeys({"S-CMD-l r e s b": {command: "resizeWindow", args: 'bottom'}});
+        kbd.bindKeys({"S-CMD-l r e s s": {command: "resizeWindow", args: 'small'}});
         kbd.bindKeys({"S-M-2": "markword"});
 
         kbd.bindKeys({"C-x C-u": "touppercase"});
