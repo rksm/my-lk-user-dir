@@ -1,5 +1,7 @@
 module('users.robertkrahn.config').requires('lively.Traits').toRun(function() {
 
+Config.set('maxStatusMessages', 10);
+
 Object.extend(users.robertkrahn, {
     currentBaseURL: document.URL.toString().split('&#')[0],
     connectEmacs: function(optSwankhost) {
