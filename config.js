@@ -618,25 +618,39 @@ Config.addOption("codeEditorUserKeySetup", function(codeEditor) {
         }, {
             name: "resizeWindow",
             exec: function(ed, how) {
-                var bounds = $world.visibleBounds().insetBy(20);
                 var win = $world.getActiveWindow();
                 if (!win) return;
+                var worldB = $world.visibleBounds().insetBy(20), winB = win.bounds(), bounds = worldB;
+                if (!win.normalBounds) {
+                    win.normalBounds = winB;
+                }
                 switch(how) {
                     case 'fullscreen': break;
                     case 'right': bounds = bounds.withX(bounds.x + bounds.width/2);
                     case 'left': bounds = bounds.withWidth(bounds.width/2); break;
                     case 'bottom': bounds = bounds.withY(bounds.y + bounds.height/2);
                     case 'top': bounds = bounds.withHeight(bounds.height/2); break;
-                    case 'small': bounds = win.normalBounds || pt(500,400).extentAsRectangle().withCenter(bounds.center()); break;
+                    case "shrinkWidth": win.resizeBy(pt(-20,0)); return;
+                    case "growWidth": win.resizeBy(pt(20,0)); return;
+                    case "shrinkHeight": win.resizeBy(pt(0,-20)); return;
+                    case "growHeight":  win.resizeBy(pt(0,20)); return;
+                    case 'reset': bounds = win.normalBounds || pt(500,400).extentAsRectangle().withCenter(bounds.center()); break;
                     default: return;
                 }
-                if (how === 'small') {
+                if (how === 'reset') {
                     delete win.normalBounds;
-                } else if (!win.normalBounds) {
-                    win.normalBounds = win.bounds();
                 }
                 win.setBounds(bounds);
             }
+        }, {
+            name: "showHalo",
+            exec: function(ed, args) {
+                var win = $world.getActiveWindow(), morph = (!args.count && win) || codeEditor;
+                if (morph.showsHalos) morph.removeHalos();
+                else morph.showHalos();
+                codeEditor.focus.bind(codeEditor).delay(0);
+            },
+            handlesCount: true
         }, {
             name: "describeKey",
             exec: function(ed) {
@@ -671,12 +685,18 @@ Config.addOption("codeEditorUserKeySetup", function(codeEditor) {
             }
         }]);
 
+        kbd.bindKeys({"S-CMD-l r e s esc": {command: "resizeWindow", args: 'reset'}});
         kbd.bindKeys({"S-CMD-l r e s f": {command: "resizeWindow", args: 'fullscreen'}});
         kbd.bindKeys({"S-CMD-l r e s l": {command: "resizeWindow", args: 'left'}});
         kbd.bindKeys({"S-CMD-l r e s r": {command: "resizeWindow", args: 'right'}});
         kbd.bindKeys({"S-CMD-l r e s t": {command: "resizeWindow", args: 'top'}});
         kbd.bindKeys({"S-CMD-l r e s b": {command: "resizeWindow", args: 'bottom'}});
-        kbd.bindKeys({"S-CMD-l r e s s": {command: "resizeWindow", args: 'small'}});
+        kbd.bindKeys({"S-CMD-l r e s x s": {command: "resizeWindow", args: 'shrinkWidth'}});
+        kbd.bindKeys({"S-CMD-l r e s x g": {command: "resizeWindow", args: 'growWidth'}});
+        kbd.bindKeys({"S-CMD-l r e s y s": {command: "resizeWindow", args: 'shrinkHeight'}});
+        kbd.bindKeys({"S-CMD-l r e s y g": {command: "resizeWindow", args: 'growHeight'}});
+
+        kbd.bindKeys({"S-CMD-l h a l o": {command: "showHalo"}});
 
         kbd.bindKeys({"CMD-1": "pushMark"});
         kbd.bindKeys({"CMD-2": "jumpToMark"});
