@@ -159,15 +159,13 @@ Trait('users.robertkrahn.WorldMenuTrait', {
 
 (function setupServerSearch() {
     module('lively.ide.CommandLineInterface').load();
-    Global.$search = function(string, optPathOrModule, thenDoOrMarker) {
+    Global.$search = function(string, optPathOrModule, thenDo) {
         var path = Object.isString(optPathOrModule) ? optPathOrModule : 'lively';
         path = path.replace(/\./g, '/');
         var cmd = Strings.format("find %s -iname '*js' -exec grep -inH %s '{}' \\; ",
             '$WORKSPACE_LK/core/' + path,
             string);
         // var cmd = 'grep -nR ' + string + ' $WORKSPACE_LK/core/' + path + '/*.js';
-        var thenDo = Object.isFunction(thenDoOrMarker) && thenDoOrMarker;
-        var marker = !thenDo && thenDoOrMarker;
         var focused = lively.morphic.Morph.focusedMorph();
         var codeEditor = focused instanceof lively.morphic.CodeEditor && focused;
         lively.shell.exec(cmd, function(r) {
@@ -175,8 +173,7 @@ Trait('users.robertkrahn.WorldMenuTrait', {
                 .map(function(line) { return line.slice(line.indexOf('/core') + 6); })
                 .join('\n');
             if (out.length === 0) out = 'nothing found;'
-            if (marker) { marker.textString = out }
-            else if (focused) {
+            if (focused) {
                 focused.printObject(null, out);
             }
             thenDo && thenDo(out);
@@ -187,7 +184,7 @@ Trait('users.robertkrahn.WorldMenuTrait', {
     Global.doBrowseAtPointOrRegion = function(codeEditor) {
         try { 
             var str = codeEditor.getSelectionOrLineString(),
-                spec = extractBrowseRefFromGrepLine(str);
+                spec = extractBrowseRefFromGrepLine(str) || extractModuleNameFromLine(str);
             if (!spec) {
                 show("cannot extract browse ref from %s", str);
             } else {
@@ -205,14 +202,20 @@ Trait('users.robertkrahn.WorldMenuTrait', {
         }
         function doBrowse(spec) {
             var modWrapper =lively.ide.sourceDB().addModule(spec.fileName),
-                fFragment = modWrapper.ast().getSubElementAtLine(spec.line, 20/*depth*/);
-            fFragment && fFragment.browseIt(getCurrentBrowser())
+                ff = modWrapper.ast();
+            if (spec.line) ff = ff.getSubElementAtLine(spec.line, 20/*depth*/);
+            ff && ff.browseIt(getCurrentBrowser())
         }
         function extractBrowseRefFromGrepLine(line) {
             // extractBrowseRefFromGrepLine("lively/morphic/HTML.js:235:    foo")
             // = {fileName: "lively/morphic/HTML.js", line: 235}
             var fileMatch = line.match(/((?:[^\/\s]+\/)*[^\.]+\.[^:]+):([0-9]+)/);
             return fileMatch ? {fileName: fileMatch[1], line: Number(fileMatch[2])} : null;
+        }
+        function extractModuleNameFromLine(line) {
+            var match = line.match(/([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+/);
+            if (!match || !match[0]) return null;
+            return {fileName: module(match[0]).relativePath('js')};
         }
     }
 })();
