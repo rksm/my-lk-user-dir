@@ -282,12 +282,33 @@ setupIyGoToChar = function setupIyGoToChar(keyboardHandler) {
 }
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+users.robertkrahn.codeEditorKeysEnabled = true;
 
-Config.addOption("codeEditorUserKeySetup", function(codeEditor) {
-    var e = codeEditor.aceEditor, lkKeys = codeEditor;
+Object.extend(lively.ide.commands.byName, {
+    'users.robertkrahn.toggleCodeEditorKeys': {
+        description: 'toggle roberts CodeEditor keys',
+        exec: function() {
+            users.robertkrahn.codeEditorKeysEnabled = !users.robertkrahn.codeEditorKeysEnabled;
+            alertOK("robert's keys " + (users.robertkrahn.codeEditorKeysEnabled ? 'enabled' : 'disabled'));
+            lively.ide.CodeEditor.KeyboardShortcuts.reinitKeyBindingsForAllOpenEditors();
+            return true;
+        }
+    }
+});
+
+Config.addOption("codeEditorUserKeySetup", function(_codeEditor) {
+    var e = _codeEditor.aceEditor, kbd = e.getKeyboardHandler();
+    if (!users.robertkrahn.codeEditorKeysEnabled) {
+        if (kbd.isEmacs) {
+            e.keyBinding.setKeyboardHandler(e.commands);
+            e.commands.hasLivelyKeys = false;
+            lively.ide.CodeEditor.KeyboardShortcuts.defaultInstance().attach(_codeEditor);
+        }
+        return;
+    }
     // if (codeEditor.hasRobertsKeys) return;
-    codeEditor.loadAceModule(["keybinding", 'ace/keyboard/emacs'], function(emacsKeys) {
-        codeEditor.hasRobertsKeys = true;
+    lively.morphic.CodeEditor.prototype.loadAceModule(["keybinding", 'ace/keyboard/emacs'], function(emacsKeys) {
+        _codeEditor.hasRobertsKeys = true;
         setupEmacsKeyboardHandler(e, emacsKeys.handler);
         var kbd = emacsKeys.handler;
 
