@@ -1,4 +1,4 @@
-module('users.robertkrahn.config').requires('lively.Traits').toRun(function() {
+module('users.robertkrahn.config').requires('lively.Traits', 'lively.ide.commands.default').toRun(function() {
 
 (function configCustomizations() {
     
@@ -181,15 +181,10 @@ lively.whenLoaded(function() {
 
 (function textSetup() {
 
-Config.addOption("textDebugging", true,
-                 "used in text impl to enable / disable debugging and warnings",
-                 'lively.morphic.text');
-
-Config.set("defaultCodeFontSize", 12);
-Config.set("aceDefaultTheme", "chrome");
-Config.addOption("aceWorkspaceTheme", "twilight");
-Config.set("aceWorkspaceTheme", "twilight");
-Config.set("aceDefaultLineWrapping", false);
+function codeEditor() {
+    var focused = lively.morphic.Morph.focusedMorph();
+    return focused && focused.isCodeEditor && focused;
+}
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
@@ -197,8 +192,7 @@ function setupEmacsKeyboardHandler(editor, handler) {
     if (editor.getKeyboardHandler() !== handler)
         editor.keyBinding.addKeyboardHandler(handler);
     editor.session.$useEmacsStyleLineStart = false;
-    handler.platform = 'mac';
-
+    handler.platform = UserAgent.isLinux || UserAgent.isWindows ? 'win' : 'mac';
 
     // debugging:
     handler.handleKeyboard = handler.handleKeyboard.getOriginal();
@@ -487,13 +481,6 @@ Config.addOption("codeEditorUserKeySetup", function(codeEditor) {
             name: "movelinesdown",
             exec: function(editor) { editor.moveLinesDown(); }
         }, {
-            name: "toggletruncatelines",
-            exec: function(editor) {
-                var lineWrapping = !codeEditor.getLineWrapping();
-                show("Truncating lines %s", lineWrapping ? "enabled" : 'disabled');
-                codeEditor.setLineWrapping(lineWrapping);
-            }
-        }, {
             name: "stringifySelection",
             exec: function(editor) {
                 var sel = editor.selection;
@@ -507,28 +494,6 @@ Config.addOption("codeEditorUserKeySetup", function(codeEditor) {
                         .join('\n+ ');
                 editor.session.doc.replace(range, stringified);
             }
-        }, {
-            name: "openDiffer",
-            exec: function(editor) {
-                require('lively.ide.tools.Differ').toRun(function() {
-                    var differ = lively.BuildSpec('lively.ide.tools.Differ').createMorph().openInWorld();
-                    differ.setPositionCentered($world.visibleBounds().center());
-                    differ.comeForward();
-                });
-            }
-        }, {
-            name: "printinspect",
-            exec: function(editor, args) {
-                inspect(args)
-                // show("xxx%s", );
-            },
-            multiSelectAction: 'forEach'
-        }, {
-            name: 'doBrowseAtPointOrRegion',
-            exec: function(editor) {
-                doBrowseAtPointOrRegion(codeEditor);
-            },
-            multiSelectAction: 'forEach'
         }, {
            name: "dividercomment",
            exec: function(editor) {
@@ -561,6 +526,17 @@ Config.addOption("codeEditorUserKeySetup", function(codeEditor) {
                 var win = $world.getActiveWindow(),
                     focus = $world.focusedMorph(),
                     browser = win && win.targetMorph && win.targetMorph.ownerWidget;
+                // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+                // FIXME
+                if (focus.owner && focus.owner.name === "ObjectInspector") {
+                    var div = focus.owner.submorphs.grep('divider').first();
+                    if (!div) return;
+                    var ratio = div.getRelativeDivide(),
+                        newRatio = ratio <= 0.35 ? 0.7 : 0.35;
+                    div.divideRelativeToParent(newRatio);
+                    return;
+                }
+                // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
                 if (!browser || !browser.isSystemBrowser) {
                     alert('Currently not in a SCB!'); return; }
                 var div = win.targetMorph.midResizer,
@@ -577,10 +553,13 @@ Config.addOption("codeEditorUserKeySetup", function(codeEditor) {
                 if (!win.normalBounds) {
                     win.normalBounds = winB;
                 }
+                var thirdW = Math.max(660, bounds.width/3);
+                var thirdColBounds = bounds.withWidth(thirdW);
                 switch(how) {
                     case 'fullscreen': break;
-                    case 'right': bounds = bounds.withX(bounds.x + bounds.width/2);
-                    case 'left': bounds = bounds.withWidth(bounds.width/2); break;
+                    case 'center': bounds = thirdColBounds.withCenter(worldB.center()); break;
+                    case 'right': bounds = thirdColBounds.withTopRight(worldB.topRight()); break;
+                    case 'left': bounds = thirdColBounds.withTopLeft(bounds.topLeft()); break;
                     case 'bottom': bounds = bounds.withY(bounds.y + bounds.height/2);
                     case 'top': bounds = bounds.withHeight(bounds.height/2); break;
                     case "shrinkWidth": win.resizeBy(pt(-20,0)); return;
@@ -596,12 +575,12 @@ Config.addOption("codeEditorUserKeySetup", function(codeEditor) {
                 win.setBounds(bounds);
             }
         }, {
-            name: "showHalo",
+            name: 'fixTextScale',
             exec: function(ed, args) {
-                var win = $world.getActiveWindow(), morph = (!args.count && win) || codeEditor;
-                if (morph.showsHalos) morph.removeHalos();
-                else morph.showHalos();
-                codeEditor.focus.bind(codeEditor).delay(0);
+                var m = codeEditor();
+                m.setScale(1/m.world().getScale());
+                var ext = m.origExtent || (m.origExtent = m.getExtent());
+                m.setExtent(ext.scaleBy(m.world().getScale()));
             },
             handlesCount: true
         }, {
@@ -633,8 +612,8 @@ Config.addOption("codeEditorUserKeySetup", function(codeEditor) {
         {
             name: 'returnorcommandlineinput',
             exec: function(ed) {
-                if (!codeEditor.isCommandLine) { ed.insert("\n"); return; }
-                codeEditor.commandLineInput && codeEditor.commandLineInput(ed.getValue());
+                if (!codeEditor().isCommandLine) { ed.insert("\n"); return; }
+                codeEditor().commandLineInput && codeEditor().commandLineInput(ed.getValue());
             }
         }]);
 
