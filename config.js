@@ -523,18 +523,21 @@ Config.addOption("codeEditorUserKeySetup", function(codeEditor) {
             }
         }]);
 
-        kbd.bindKeys({"S-CMD-l r e s esc": {command: "resizeWindow", args: 'reset'}});
-        kbd.bindKeys({"S-CMD-l r e s f": {command: "resizeWindow", args: 'fullscreen'}});
-        kbd.bindKeys({"S-CMD-l r e s l": {command: "resizeWindow", args: 'left'}});
-        kbd.bindKeys({"S-CMD-l r e s r": {command: "resizeWindow", args: 'right'}});
-        kbd.bindKeys({"S-CMD-l r e s t": {command: "resizeWindow", args: 'top'}});
-        kbd.bindKeys({"S-CMD-l r e s b": {command: "resizeWindow", args: 'bottom'}});
-        kbd.bindKeys({"S-CMD-l r e s x s": {command: "resizeWindow", args: 'shrinkWidth'}});
-        kbd.bindKeys({"S-CMD-l r e s x g": {command: "resizeWindow", args: 'growWidth'}});
-        kbd.bindKeys({"S-CMD-l r e s y s": {command: "resizeWindow", args: 'shrinkHeight'}});
-        kbd.bindKeys({"S-CMD-l r e s y g": {command: "resizeWindow", args: 'growHeight'}});
+        var shiftCmdPrefix = kbd.platform === 'mac' ? 'S-CMD-' : 'S-C-',
+            cmdLPrefix = shiftCmdPrefix + 'l ';
+        function bind(keys, command) { var binding = {}; binding[keys] = command; return binding; };
 
-        kbd.bindKeys({"S-CMD-l h a l o": {command: "showHalo"}});
+        kbd.bindKeys(bind(cmdLPrefix + "r e s esc", {command: "resizeWindow", args: 'reset'}));
+        kbd.bindKeys(bind(cmdLPrefix + "r e s f", {command: "resizeWindow", args: 'fullscreen'}));
+        kbd.bindKeys(bind(cmdLPrefix + "r e s l", {command: "resizeWindow", args: 'left'}));
+        kbd.bindKeys(bind(cmdLPrefix + "r e s c", {command: "resizeWindow", args: 'center'}));
+        kbd.bindKeys(bind(cmdLPrefix + "r e s r", {command: "resizeWindow", args: 'right'}));
+        kbd.bindKeys(bind(cmdLPrefix + "r e s t", {command: "resizeWindow", args: 'top'}));
+        kbd.bindKeys(bind(cmdLPrefix + "r e s b", {command: "resizeWindow", args: 'bottom'}));
+        kbd.bindKeys(bind(cmdLPrefix + "r e s x s", {command: "resizeWindow", args: 'shrinkWidth'}));
+        kbd.bindKeys(bind(cmdLPrefix + "r e s x g", {command: "resizeWindow", args: 'growWidth'}));
+        kbd.bindKeys(bind(cmdLPrefix + "r e s y s", {command: "resizeWindow", args: 'shrinkHeight'}));
+        kbd.bindKeys(bind(cmdLPrefix + "r e s y g", {command: "resizeWindow", args: 'growHeight'}));
 
         kbd.bindKeys({"CMD-1": "pushMark"});
         kbd.bindKeys({"CMD-2": "jumpToMark"});
@@ -557,38 +560,50 @@ Config.addOption("codeEditorUserKeySetup", function(codeEditor) {
         kbd.bindKeys({"C-c S-j": "joinLineBelow"});
         kbd.bindKeys({'C-c p': "duplicateLine"});
 
-        kbd.bindKeys({"S-CMD-l j s s t r": "stringifySelection"});
-        kbd.bindKeys({"S-CMD-l d i f f": "openDiffer"});
+        kbd.bindKeys(bind(cmdLPrefix + "j s s t r", "stringifySelection"));
+        kbd.bindKeys(bind(cmdLPrefix + "d i f f", "openDiffer"));
+        kbd.bindKeys(bind(cmdLPrefix + "m o d e", "changeTextMode"));
 
         // SCb
         kbd.bindKeys({'C-c C-t': "runtests"});
         kbd.bindKeys({'S-F6': "toogleSCBSizing"});
 
-        kbd.bindKeys({"M-.": "doBrowseAtPointOrRegion"});
-        kbd.bindKeys({"S-CMD-l S-g": "doBrowseImplementors"});
-        kbd.bindKeys({"S-CMD-l g": "doBrowseImplementors"});
+        kbd.bindKeys(bind(cmdLPrefix + "S-g", "doBrowseImplementors"));
+        kbd.bindKeys(bind(cmdLPrefix + "g", 'doCommandLineSearch'));
 
-        kbd.bindKeys({"S-CMD-l l t": "toggletruncatelines"});
+        kbd.bindKeys(bind(cmdLPrefix + "l t", "toggleLineWrapping"));
 
-        kbd.bindKeys({"S-CMD-l / d": "dividercomment"});
+        kbd.bindKeys(bind(cmdLPrefix + "/ d", "dividercomment"));
 
         // evaluation
         kbd.bindKeys({"C-x C-e": "printit"});
-        // kbd.bindKeys({"CMD-i": "printinspect"});
+        kbd.bindKeys({"CMD-i": "printInspect"}); // re-apply to be able to use count arg
 
         kbd.bindKeys({"C-h k": "describeKey"});
 
         kbd.bindKeys({"C-x h": "selectall"});
+        kbd.bindKeys({"C-c C-S-,": "selectAllLikeThis"});
         kbd.bindKeys({"CMD-f": 'moveForwardToMatching'});
         kbd.bindKeys({"CMD-b": 'moveBackwardToMatching'});
         kbd.bindKeys({"S-CMD-f": 'selectToMatchingForward'});
         kbd.bindKeys({"S-CMD-b": 'selectToMatchingBackward'});
 
-        kbd.bindKeys({"Return": 'returnorcommandlineinput'})
+        kbd.bindKeys(bind(cmdLPrefix + "f i x", 'fixTextScale'));
+
+        kbd.bindKeys(bind(cmdLPrefix + "d a t e", 'insertDate'));
+
+        // kbd.bindKeys({"Return": 'returnorcommandlineinput'});
+
+        kbd.bindKeys(bind(cmdLPrefix + "b r o w s e", 'browseURLOrPathInWebBrowser'));
+        kbd.bindKeys(bind(cmdLPrefix + "d a t e", 'insertDate'));
+
+        kbd.bindKeys({"M-q": 'fitTextToColumn'});
+        kbd.bindKeys(bind(cmdLPrefix + "w t", 'cleanupWhitespace'));
 
         setupIyGoToChar(kbd);
     });
 });
 
 })();
+
 }) // end of module
