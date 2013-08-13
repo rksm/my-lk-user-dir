@@ -281,100 +281,6 @@ setupIyGoToChar = function setupIyGoToChar(keyboardHandler) {
     keyboardHandler.bindKeys({"CMD-,": {command: 'iyGoToChar', args: {backwards: true}}});
 }
 
-setupASTNavigation = function setupASTNavigation(codeEditor, kbd) {
-
-    function move(selector, codeEditor) {
-        var pos = codeEditor.getSelection().lead,
-            idx = codeEditor.positionToIndex(pos),
-            nav = new lively.ide.CodeEditor.JS.Navigator(),
-            newIdx = nav[selector](codeEditor.textString, idx),
-            newPos = codeEditor.indexToPosition(newIdx);
-        codeEditor.getSelection().moveCursorToPosition(newPos);
-    }
-    function select(selector, codeEditor) {
-        var nav = new lively.ide.CodeEditor.JS.Navigator(),
-            newRangeIndices = nav[selector](codeEditor.textString, codeEditor.getSelectionRange());
-        if (newRangeIndices) codeEditor.setSelectionRange(newRangeIndices[0], newRangeIndices[1]);
-    }
-
-    kbd.addCommands([{
-        name: 'forwardSexp',
-        exec: function(ed) {
-            move('forwardSexp', codeEditor);
-        },
-        multiSelectAction: 'forEach',
-        readOnly: true
-    }, {
-        name: 'backwardSexp',
-        exec: function(ed) {
-            move('backwardSexp', codeEditor);
-        },
-        multiSelectAction: 'forEach',
-        readOnly: true
-    }, {
-        name: 'backwardUpSexp',
-        exec: function(ed) {
-            ed.pushEmacsMark(ed.getCursorPosition());
-            move('backwardUpSexp', codeEditor);
-        },
-        multiSelectAction: 'forEach',
-        readOnly: true
-    }, {
-        name: 'forwardDownSexp',
-        exec: function(ed) {
-            ed.pushEmacsMark(ed.getCursorPosition());
-            move('forwardDownSexp', codeEditor);
-        },
-        multiSelectAction: 'forEach',
-        readOnly: true
-    }, {
-        name: 'markDefun',
-        exec: function(ed) {
-            ed.pushEmacsMark(ed.getCursorPosition());
-            select('rangeForFunctionOrDefinition', codeEditor);
-        },
-        multiSelectAction: 'forEach',
-        readOnly: true
-    }, {
-        name: 'expandRegion',
-        exec: function(ed) {
-            var state = ed.$expandRegionState || (ed.$expandRegionState = {range: codeEditor.getSelectionRange()});
-            var nav = new lively.ide.CodeEditor.JS.Navigator();
-            var newState = nav.expandRegion(codeEditor.textString, state);
-            if (newState && newState.range) {
-                codeEditor.setSelectionRange(newState.range[0], newState.range[1]);
-                ed.$expandRegionState = newState;
-            }
-            ed.selection.once('changeCursor', function(evt) { ed.$expandRegionState = null; });
-        },
-        multiSelectAction: 'forEach',
-        readOnly: true
-    }, {
-        name: 'contractRegion',
-        exec: function(ed) {
-            var state = ed.$expandRegionState;
-            if (!state) return;
-            var nav = new lively.ide.CodeEditor.JS.Navigator();
-            var newState = nav.contractRegion(codeEditor.textString, state);
-            if (newState && newState.range) {
-                codeEditor.setSelectionRange(newState.range[0], newState.range[1]);
-                ed.$expandRegionState = newState;
-            }
-            ed.selection.once('changeCursor', function(evt) { ed.$expandRegionState = null; });
-        },
-        multiSelectAction: 'forEach',
-        readOnly: true
-    }]);
-
-    kbd.bindKeys({"C-M-f": {command: 'forwardSexp'}});
-    kbd.bindKeys({"C-M-b": {command: 'backwardSexp'}});
-    kbd.bindKeys({"C-M-u": {command: 'backwardUpSexp'}});
-    kbd.bindKeys({"C-M-d": {command: 'forwardDownSexp'}});
-    kbd.bindKeys({"C-M-h": {command: 'markDefun'}});
-    kbd.bindKeys({"S-CMD-space": {command: 'expandRegion'}});
-    kbd.bindKeys({"C-CMD-space": {command: 'contractRegion'}});
-}
-
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 Config.addOption("codeEditorUserKeySetup", function(codeEditor) {
@@ -681,7 +587,6 @@ Config.addOption("codeEditorUserKeySetup", function(codeEditor) {
         kbd.bindKeys({"Return": 'returnorcommandlineinput'})
 
         setupIyGoToChar(kbd);
-        setupASTNavigation(codeEditor, kbd);
     });
 });
 
