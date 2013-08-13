@@ -1,6 +1,21 @@
 module('users.robertkrahn.config').requires('lively.Traits').toRun(function() {
 
+(function configCustomizations() {
+    
 Config.set('maxStatusMessages', 10);
+Config.addOption("textDebugging", true,
+                 "used in text impl to enable / disable debugging and warnings",
+                 'lively.morphic.text');
+
+Config.set("defaultCodeFontSize", 12);
+Config.set("aceDefaultTheme", "chrome");
+Config.addOption("aceWorkspaceTheme", "tomorrow_night");
+Config.set("aceDefaultLineWrapping", false);
+
+Config.set("defaultSCBSourcePaneToListPaneRatio", 0.65);
+Config.set("defaultSCBExtent", [840,650]);
+
+})();
 
 
 Trait('users.robertkrahn.CodeEditorRememberTrait', {
