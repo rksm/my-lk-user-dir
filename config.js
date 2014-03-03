@@ -1,60 +1,90 @@
 module('users.robertkrahn.config').requires('lively.Traits', 'lively.ide.commands.default').toRun(function() {
 
-(function configCustomizations() {
-    
-Config.set('maxStatusMessages', 10);
-Config.addOption("textDebugging", true,
-                 "used in text impl to enable / disable debugging and warnings",
-                 'lively.morphic.text');
+/* -- upload --
+dir = $world.getUserDir()
+urls = [dir.withFilename("config.js"), dir.withFilename("SnippetViewer.js")]
+urls.forEach(function(url) {
+    var targetURL = new URL('http://lively-web.org').withFilename(url.pathname),
+        source = url.asWebResource().get().content;
+    targetURL.asWebResource().beAsync().put(source).forceUncached().whenDone(function(_,status) {
+        if (status.isSuccess()) alertOK(url.filename() + ' uploaded');
+        else show("error uploading: %s", status);
+    });
+});
+*/
 
-Config.set("defaultCodeFontSize", 12);
-Config.set("aceDefaultTheme", "chrome");
-Config.addOption("aceWorkspaceTheme", "tomorrow_night");
-Config.set("aceDefaultLineWrapping", false);
 
-Config.set("defaultSCBSourcePaneToListPaneRatio", 0.65);
-Config.set("defaultSCBExtent", [840,650]);
+(function lively2livelyCustomizations() {
 
+    var observer = users.robertkrahn.lively2lively || (users.robertkrahn.lively2lively = {
+
+        messageCache: [],
+
+        informAboutSessionEvents: function(s) {
+            lively.bindings.connect(s, 'established', this, 'sessionEstablished');
+            lively.bindings.connect(s, 'closed', this, 'sessionClosed');
+            lively.bindings.connect(s, 'message', this, 'messageReceived');
+        },
+
+        messageReceived: function(msgAndSession) {
+            var msg = msgAndSession.message, s = msgAndSession.session;
+            if (msg.action === 'remoteEvalRequest') {
+                show('got removeEvalRequest\n' + msg.data.expr.replace(/\n/g, '').truncate(100));
+                this.messageCache.push(msg);
+            }
+        },
+
+        sessionEstablished: function(s) {
+            lively.whenLoaded(function(world) { world.alertOK('Lively2Lively session establised ' + s); });
+        },
+
+        sessionCreated: function(s) {
+            this.informAboutSessionEvents(s);
+            lively.whenLoaded(function(world) { world.alertOK('Lively2Lively session created'); });
+        },
+
+        sessionClosed: function(s) {
+            lively.whenLoaded(function(world) { world.alertOK('Lively2Lively session closed'); });
+        }
+    });
+
+    require('lively.net.SessionTracker').toRun(function() {
+        lively.bindings.connect(lively.net.SessionTracker, 'sessionCreated', observer, 'sessionCreated');
+        // lively.bindings.connect(lively.net.SessionTracker, 'sessionClosed', observer, 'sessionClosed');
+        var s = lively.net.SessionTracker.getSession();
+        s && observer.informAboutSessionEvents(s);
+    });
 })();
 
-
-Trait('users.robertkrahn.CodeEditorRememberTrait', {
-    codeEditorMenuItems: function () {
-        var items = lively.ide.CodeEditor.prototype.codeEditorMenuItems.call(this),
-            editor = this;
-        // remember
-        var rememberItems = ['Remember...', []];
-        items.push(rememberItems);
-
-        var snippets;
-        function getSnippets() {
-            if (snippets) return snippets;
-            return snippets = JSON.parse(localStorage.robertsSnippets = localStorage.robertsSnippets || '{}');
-        }
-
-        function saveSnippet(name, content) {
-            getSnippets();
-            snippets[name] = content;
-            localStorage.robertsSnippets = JSON.stringify(snippets);
-        }
-
-        rememberItems[1].push(['Remember snippet', function() {
-            $world.prompt('Name for snippet?', function(input) {
-                if (!input) { show('snippet not saved'); return }
-                var name = input.replace(/[\s\\\/]+/g, '-');
-                saveSnippet(name, range.isEmpty() ? editor.textString : this.getTextRange(range));
-            })
-            var range = editor.getSelectionRangeAce()
-            self.addEvalMarker();
-        }]);
-
-        return items;
-    }
-
+lively.whenLoaded(function(w) {
+    // $world.loadStyleSheetFromFile('https://gist.github.com/rksm/7244445/raw/44d32194e64f71290b10317d7beba47ce8a42781/gistfile1.css', "");
 });
 
+Object.extend(users.robertkrahn, {
+    ensureCodeEditorPreferences: function() {
+        // Config.addOption("textDebugging", true,
+        //          "used in text impl to enable / disable debugging and warnings",
+        //          'lively.morphic.text');
 
-(function setupRememeber() {
+        Config.set('maxStatusMessages', 10);
+
+        [{name: "defaultCodeFontSize", value: 12, set: "style.fontSize"},
+         {name: "aceDefaultTheme", value: "chrome", set: "style.them"},
+         {name: "aceWorkspaceTheme", value: "tomorrow_night"},
+         {name: "aceTextEditorTheme", value: "tomorrow_night", set: "style.theme"},
+         {name: "aceSystemCodeBrowserTheme", value: "chrome"},
+         {name: "aceDefaultLineWrapping", value: false, set: "style.lineWrapping"},
+         {name: "defaultSCBSourcePaneToListPaneRatio", value: 0.65},
+         {name: "defaultSCBExtent", value: [840,650]}
+        ].forEach(function(setting) {
+            lively.Config.set(setting.name, setting.value);
+            setting.set && lively.PropertyPath(setting.set).set(lively.morphic.CodeEditor.prototype, setting.value);
+        });
+    }
+});
+
+(function configCustomizations() {
+    users.robertkrahn.ensureCodeEditorPreferences();
 })();
 
 (function setupDebuggingStuff() {
@@ -96,18 +126,6 @@ Object.extend(users.robertkrahn, {
         }
     }
 });
-
-(function initEmacs () {
-    users.robertkrahn.reconnectEmacs();
-})();
-
-(function loadAutocompletion() {
-    // module('projects.ToolTabs.Autocompletion').load();
-})();
-
-(function loadAdvancedSyntaxHighlighting() {
-    Config.set("advancedSyntaxHighlighting", true)
-})();
 
 (function setupShortcuts() {
     function modifySel(dir, select) {
@@ -173,13 +191,22 @@ Trait('users.robertkrahn.WorldMenuTrait', {
 });
 
 
-lively.whenLoaded(function() {
-    Trait('users.robertkrahn.WorldMenuTrait').applyTo($world, {override: ['morphMenuItems']});
-
-    $world.alertOK('Robert\'s user config loaded');
-});
-
 (function textSetup() {
+
+// make paren behavior the default in all modes:
+lively.module('lively.ide.codeeditor.ace').runWhenLoaded(function() {
+    lively.ide.ace.require('ace/mode/text').Mode.addMethods({
+        // FIXME just overwriting $behaviour property in mode prototype isn't
+        // enough because the mode constructor unfortunately sets the behavior
+        // directly. So we also delete the ownProperty behavior in attach
+        $behaviour: new (lively.ide.ace.require("ace/mode/behaviour/cstyle").CstyleBehaviour)(),
+        attach: function(ed) {
+            // replace "Null-Behavior" only
+            if (this.$behaviour && this.$behaviour.constructor === lively.ide.ace.require("ace/mode/behaviour").Behaviour)
+                delete this.$behaviour;
+        }
+    });
+});
 
 function codeEditor() {
     var focused = lively.morphic.Morph.focusedMorph();
@@ -192,6 +219,7 @@ function setupEmacsKeyboardHandler(editor, handler) {
     if (editor.getKeyboardHandler() !== handler)
         editor.keyBinding.addKeyboardHandler(handler);
     editor.session.$useEmacsStyleLineStart = false;
+    delete editor.getKeyboardHandler().commandKeyBinding['m-x'];
     handler.platform = UserAgent.isLinux || UserAgent.isWindows ? 'win' : 'mac';
 
     // debugging:
@@ -216,11 +244,16 @@ function setupEmacsKeyboardHandler(editor, handler) {
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-setupIyGoToChar = function setupIyGoToChar(keyboardHandler) {
+Global.setupIyGoToChar = function(keyboardHandler) {
     var debug = false;
     function iyGoToChar(editor, options) {
+        var kbd = editor.getKeyboardHandler();
+        if (kbd.isIyGoToChar) return;
+
         var HashHandler = lively.ide.ace.require("ace/keyboard/hash_handler").HashHandler,
             iyGoToCharHandler = new HashHandler();
+
+        iyGoToCharHandler.isIyGoToChar = true;
 
         iyGoToCharHandler.handleKeyboard = function(data, hashId, key, keyCode) {
             // first invocation: if a key is pressed remember this char as the char
@@ -230,7 +263,8 @@ setupIyGoToChar = function setupIyGoToChar(keyboardHandler) {
 
             // shift key or raw event
             debug && show("hashId: %s, key: %s", hashId, key);
-            if ((hashId === 0 && key !== 'backspace') || hashId === 4) return {command: 'null', passEvent: true};
+            // shift = hashId 4
+            if ((hashId === 0 && key !== 'esc' && key !== 'backspace') || hashId === 4) return {command: 'null', passEvent: true};
             if (!this.charToFind) {
                 if (key && hashId === -1) {
                     this.charToFind = key;
@@ -271,35 +305,29 @@ setupIyGoToChar = function setupIyGoToChar(keyboardHandler) {
                     return;
                 }
                 ed.selection.moveCursorToPosition(foundRange.end);
-            }
+            },
+            multiSelectAction: 'forEach'
         }]);
         editor.keyBinding.addKeyboardHandler(iyGoToCharHandler);
     }
 
+    function iyGoToCharBackwards(editor, args) {
+        iyGoToChar(editor, {backwards: true});
+    }
+
     keyboardHandler.addCommands([{name: 'iyGoToChar', exec: iyGoToChar}]);
-    keyboardHandler.bindKeys({"CMD-.": {command: 'iyGoToChar', args: {backwards: false}}});
-    keyboardHandler.bindKeys({"CMD-,": {command: 'iyGoToChar', args: {backwards: true}}});
+    keyboardHandler.addCommands([{name: 'iyGoToCharBackwards', exec: iyGoToCharBackwards}]);
+    keyboardHandler.bindKeys({"CMD-.": {exec: iyGoToChar}});
+    keyboardHandler.bindKeys({"CMD-,": {exec: iyGoToCharBackwards}});
 }
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-users.robertkrahn.codeEditorKeysEnabled = true;
-
-Object.extend(lively.ide.commands.byName, {
-    'users.robertkrahn.toggleCodeEditorKeys': {
-        description: 'toggle roberts CodeEditor keys',
-        exec: function() {
-            users.robertkrahn.codeEditorKeysEnabled = !users.robertkrahn.codeEditorKeysEnabled;
-            alertOK("robert's keys " + (users.robertkrahn.codeEditorKeysEnabled ? 'enabled' : 'disabled'));
-            lively.ide.CodeEditor.KeyboardShortcuts.reinitKeyBindingsForAllOpenEditors();
-            return true;
-        }
-    }
-});
 
 Config.addOption("codeEditorUserKeySetup", function(_codeEditor) {
     var e = _codeEditor.aceEditor, kbd = e.getKeyboardHandler();
     if (!users.robertkrahn.codeEditorKeysEnabled) {
         if (kbd.isEmacs) {
+            // we have our own version of exec
             e.keyBinding.setKeyboardHandler(e.commands);
             e.commands.hasLivelyKeys = false;
             lively.ide.CodeEditor.KeyboardShortcuts.defaultInstance().attach(_codeEditor);
@@ -316,6 +344,7 @@ Config.addOption("codeEditorUserKeySetup", function(_codeEditor) {
         // key command setup
         // ------------------
         function joinLine(ed) {
+            if (!ed.selection.isEmpty()) ed.selection.clearSelection();
             var pos = ed.getCursorPosition(),
                 rowString = ed.session.doc.getLine(pos.row),
                 whitespaceMatch = rowString.match(/^\s*/),
@@ -354,36 +383,6 @@ Config.addOption("codeEditorUserKeySetup", function(_codeEditor) {
             },
             readOnly: true
         }, {
-            name: 'moveCursorUpwardQuickly',
-            exec: function(ed) {
-                var currentPos = ed.getCursorPosition(),
-                    firstRow = ed.renderer.getFirstFullyVisibleRow(),
-                    lastRow = ed.renderer.getLastFullyVisibleRow(),
-                    middleRow = firstRow+Math.floor((lastRow - firstRow)/2);
-                if (currentPos.row <= firstRow) return;
-                newPos = currentPos;
-                if (currentPos.row <= middleRow) newPos.row = firstRow;
-                else if (currentPos.row <= lastRow) newPos.row = middleRow;
-                else newPos.row = lastRow;
-                ed.selection.moveCursorToPosition(newPos)
-            },
-            readOnly: true
-        }, {
-            name: 'moveCursorDownwardQuickly',
-            exec: function(ed) {
-                var currentPos = ed.getCursorPosition(),
-                    firstRow = ed.renderer.getFirstFullyVisibleRow(),
-                    lastRow = ed.renderer.getLastFullyVisibleRow(),
-                    middleRow = firstRow+Math.floor((lastRow - firstRow)/2);
-                newPos = currentPos;
-                if (currentPos.row < firstRow) newPos.row = firstRow;
-                else if (currentPos.row < middleRow) newPos.row = middleRow;
-                else if (currentPos.row < lastRow) newPos.row = lastRow;
-                else return;
-                ed.selection.moveCursorToPosition(newPos);
-            },
-            readOnly: true
-        }, {
             name: 'joinLineAbove',
             exec: joinLine,
             multiSelectAction: 'forEach',
@@ -393,6 +392,36 @@ Config.addOption("codeEditorUserKeySetup", function(_codeEditor) {
             exec: function(ed) {
                 ed.navigateDown();
                 joinLine(ed);
+            },
+            multiSelectAction: 'forEach',
+            readOnly: false
+        }, {
+            name: 'curlyBlockOneLine',
+            exec: function(ed) {
+                // "if (foo) {\n 3+3;\n}" -> "if (foo) { 3+3; }"
+                function stringLeftOfPosIncludes(pos, string) {
+                    var before = ed.session.getTextRange({start: {column: 0, row: pos.row}, end: pos}),
+                        idx = before.indexOf(string);
+                    return idx > -1 && idx;
+                }
+
+                var pos = ed.selection.getCursor();
+                // are we right from a "}" and on the same line?
+                var endBracket = ed.find(/\}/, {start: pos, backwards: true, preventScroll: true});
+                // if not search forward
+                if (!endBracket || endBracket.end.row !== pos.row) {
+                    endBracket = ed.find(/\}/, {start: pos, backwards: false, preventScroll: true});
+                }
+                if (!endBracket) return;
+                ed.moveCursorToPosition(endBracket.end);
+                pos = endBracket.end;
+                var matchingBracketPos = ed.session.findMatchingBracket(pos);
+                if (!matchingBracketPos) return;
+                while (pos.row !== matchingBracketPos.row) {
+                    joinLine(ed); ed.insert(' ');
+                    pos = ed.selection.getCursor();
+                }
+                ed.selection.moveCursorToPosition(matchingBracketPos);
             },
             multiSelectAction: 'forEach',
             readOnly: false
@@ -535,6 +564,42 @@ Config.addOption("codeEditorUserKeySetup", function(_codeEditor) {
                 });
             }
         },
+        // todo
+        {
+            name: "toggleTodoMarker",
+            exec: function(ed) {
+                var range = ed.session.selection.getRange();
+                if (range.isEmpty()) {
+                    ed.$morph.selectCurrentLine();
+                    range = ed.session.selection.getRange();
+                }
+                var text = ed.session.getTextRange(range),
+                    undoneRe = /\[\s*\]/g,
+                    doneRe = /\[✔\]/g,
+                    replacement = text;
+                if (undoneRe.test(text)) {
+                    replacement = text.replace(undoneRe, '[✔]');
+                } else if (doneRe.test(text)) {
+                    replacement = text.replace(doneRe, '[ ]');
+                } else { return; }
+                ed.session.replace(range, replacement);
+            }
+        }, {
+            name: "addOrRemoveTodoMarker",
+            exec: function(ed) {
+                ed.$morph.selectCurrentLine();
+                var range = ed.session.selection.getRange(),
+                    text = ed.session.getTextRange(range),
+                    todoInFrontRe = /^(\s*)\[.?\]\s*(.*)/,
+                    replacement = text;
+                if (todoInFrontRe.test(text)) {
+                    replacement = text.replace(todoInFrontRe, '$1$2');
+                } else {
+                    replacement = text.replace(todoInFrontRe = /^(\s*)(.*)/, '$1[ ] $2');
+                }
+                ed.session.replace(range, replacement);
+            }
+        },
         // commandline
         {
             name: 'returnorcommandlineinput',
@@ -560,12 +625,12 @@ Config.addOption("codeEditorUserKeySetup", function(_codeEditor) {
         kbd.bindKeys(bind(cmdLPrefix + "r e s y s", {command: "resizeWindow", args: 'shrinkHeight'}));
         kbd.bindKeys(bind(cmdLPrefix + "r e s y g", {command: "resizeWindow", args: 'growHeight'}));
 
+        kbd.bindKeys({"C-Up": 'gotoPrevParagraph'});
+        kbd.bindKeys({"C-Down": 'gotoNextParagraph'});
+
         kbd.bindKeys({"CMD-1": "pushMark"});
         kbd.bindKeys({"CMD-2": "jumpToMark"});
         kbd.bindKeys({"S-M-2": "markword"});
-
-        kbd.bindKeys({"C-Up": "moveCursorUpwardQuickly"});
-        kbd.bindKeys({"C-Down": "moveCursorDownwardQuickly"});
 
         kbd.bindKeys({"C-x C-u": "touppercase"});
         kbd.bindKeys({"C-x C-l": "tolowercase"});
@@ -580,6 +645,8 @@ Config.addOption("codeEditorUserKeySetup", function(_codeEditor) {
         kbd.bindKeys({"C-c j": "joinLineAbove"});
         kbd.bindKeys({"C-c S-j": "joinLineBelow"});
         kbd.bindKeys({'C-c p': "duplicateLine"});
+        kbd.bindKeys({'C-c CMD-j': "curlyBlockOneLine"});
+        kbd.bindKeys(bind(cmdLPrefix + "c a r", "alignSelection"));
 
         kbd.bindKeys(bind(cmdLPrefix + "j s s t r", "stringifySelection"));
         kbd.bindKeys(bind(cmdLPrefix + "d i f f", "openDiffer"));
@@ -598,6 +665,7 @@ Config.addOption("codeEditorUserKeySetup", function(_codeEditor) {
 
         // evaluation
         kbd.bindKeys({"C-x C-e": "printit"});
+        kbd.bindKeys(bind(cmdLPrefix + "x b", {command: "evalAll", args: {confirm: true}}));
         kbd.bindKeys({"CMD-i": "printInspect"}); // re-apply to be able to use count arg
 
         kbd.bindKeys({"C-h k": "describeKey"});
@@ -618,13 +686,135 @@ Config.addOption("codeEditorUserKeySetup", function(_codeEditor) {
         kbd.bindKeys(bind(cmdLPrefix + "b r o w s e", 'browseURLOrPathInWebBrowser'));
         kbd.bindKeys(bind(cmdLPrefix + "d a t e", 'insertDate'));
 
+        kbd.bindKeys(bind(cmdLPrefix + "s n i p", 'browseSnippets'));
+
         kbd.bindKeys({"M-q": 'fitTextToColumn'});
         kbd.bindKeys(bind(cmdLPrefix + "w t", 'cleanupWhitespace'));
+        kbd.bindKeys(bind(cmdLPrefix + "x m l p", 'prettyPrintHTMLAndXML'));
 
-        setupIyGoToChar(kbd);
+        kbd.bindKeys(bind(cmdLPrefix + "t d", 'toggleTodoMarker'));
+        kbd.bindKeys(bind(cmdLPrefix + "t n", 'addOrRemoveTodoMarker'));
+        Global.setupIyGoToChar(kbd);
     });
 });
 
 })();
+
+(function interactiveCommands() {
+
+// key reset
+users.robertkrahn.codeEditorKeysEnabled = true;
+Object.extend(lively.ide.commands.byName, {
+    'users.robertkrahn.toggleCodeEditorKeys': {
+        description: 'toggle roberts CodeEditor keys',
+        exec: function() {
+            users.robertkrahn.codeEditorKeysEnabled = !users.robertkrahn.codeEditorKeysEnabled;
+            alertOK("robert's keys " + (users.robertkrahn.codeEditorKeysEnabled ? 'enabled' : 'disabled'));
+            lively.ide.CodeEditor.KeyboardShortcuts.reinitKeyBindingsForAllOpenEditors();
+            users.robertkrahn.ensureCodeEditorPreferences();
+            return true;
+        }
+    }
+});
+
+Object.extend(lively.ide.commands.byName, {
+    'users.robertkrahn.searchWorkspaces': {
+        description: 'search workspaces',
+        exec: function() {
+            var greper = Functions.debounce(500, function(input, callback) {
+                var candidates = morphsToCandidates(findWindowOrMorphWithString(input), input);
+                callback(candidates);
+            });
+            function candidateBuilder(input, callback) { callback(['searching...']); greper(input, callback); };
+            // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+            function findWindowOfCollapsedMorph(morph) {
+                return $world.withAllSubmorphsDetect(function(m) { return m.isWindow && m.targetMorph === morph; })
+            }
+            function morphsToCandidates(morphs, input) {
+                return morphs.map(function(m) {
+                    var win = m.world() ? m.getWindow() : findWindowOfCollapsedMorph(m);
+                    var range = m.aceEditor.find({needle: input, preventScroll: true, start: {row: 0, column: 0}})
+                    var preview = m.aceEditor.session.getLine(range.start.row);
+                    var title = win ? win.getTitle() : m.toString();
+                    function action() {
+                        if (win) {
+                            if (win.state ==='collapsed') win.toggleCollapse();
+                            win.comeForward();
+                        }
+                        (win || m).show();
+                        if (m.indexToPosition) m.setSelectionRangeAce(range);
+                    }
+                    return {isListItem: true, string: title + ' | ' + preview, value: {morph: m, action: action}}
+                });
+            }
+            function findWindowOrMorphWithString(string) {
+                return $world.withAllSubmorphsDo(function(morph) {
+                    // collapsed window's codeeditor is not in world, pluck them manually
+                    if (morph.isWindow && morph.state === 'collapsed' && morph.targetMorph && morph.targetMorph.isCodeEditor) morph = morph.targetMorph;
+                    if (!morph.textString) return null;
+                    if (!morph.isCodeEditor) return null;
+                    if (!morph.ownerChain().all(function(owner) { return owner.isVisible() && !owner.isNarrowingList; })) return null;
+                    if (!morph.aceEditor || !morph.aceEditor.find({needle: string, preventScroll: true, start: {row: 0, column: 0}})) return null;
+                    return morph;
+                }).compact();
+            }
+            (function narrowerForMorphs(morphs) {
+                // lively.ide.tools.SelectionNarrowing.cachedNarrowers = {};
+                return lively.ide.tools.SelectionNarrowing.getNarrower({
+                    name: 'users.robertkrahn.searchWorkspaces',
+                    setup: function(narrower) {
+                        lively.bindings.connect(
+                            narrower, 'selection',
+                            {show: Functions.debounce(500, function(c) { c && c.morph && c.morph.show() })},
+                            'show');
+                    },
+                    spec: {
+                        prompt: 'search term: ',
+                        candidates: [],
+                        maxItems: 25,
+                        candidatesUpdaterMinLength: 3,
+                        candidatesUpdater: candidateBuilder,
+                        keepInputOnReactivate: true,
+                        actions: [{name: 'select morph', exec: function(c) { c.action(); }}]
+                    }
+                });
+            })();
+            return true;
+        }
+    },
+    'users.robertkrahn.openIframe': {
+        description: 'open url in iframe',
+        exec: function() {
+            $world.prompt('Enter URL', function(url) {
+                if (!url || !url.length) return;
+                lively.morphic.World.loadInIFrameWithWindow(url, $world.visibleBounds().insetByPt(pt(300, 200)));
+            }, {historyId: 'users.robertkrahn.openIframe'});
+            return true;
+        }
+    },
+
+    'users.robertkrahn.openSnippetViewer': {
+        description: 'open snippets viewers',
+        exec: function() {
+            require('users.robertkrahn.SnippetViewer').toRun(function() {
+                lively.BuildSpec('users.robertkrahn.SnippetViewer').createMorph().openInWorldCenter().comeForward();
+            });
+            return true;
+        }
+    },
+});
+
+Object.extend(lively.ide.commands.defaultBindings, { // bind commands to default keys
+    'users.robertkrahn.searchWorkspaces': "cmd-s-l w s",
+    'users.robertkrahn.openIframe': "cmd-s-l i f r a m e"
+});
+
+})();
+
+lively.whenLoaded(function() {
+    Trait('users.robertkrahn.WorldMenuTrait').applyTo($world, {override: ['morphMenuItems']});
+
+    $world.alertOK('Robert\'s user config loaded');
+});
 
 }) // end of module
