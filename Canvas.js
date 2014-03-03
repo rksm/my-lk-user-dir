@@ -1,4 +1,4 @@
-module('users.robertkrahn.Canvas').requires().toRun(function() {
+module('users.robertkrahn.Canvas').requires('lively.morphic').toRun(function() {
 
 function canvasFillFor(ourFill, graphicContext, bnds) {
     if (ourFill == null) return null;
@@ -67,7 +67,7 @@ lively.morphic.Shapes.Shape.subclass('DrawingCanvasShape',
             ctx.ctxt2d.height = img.height;
             ctx.ctxt2d.drawImage(img, 0, 0);
             self.restoreInProgress = false;
-            delete self.dataURL;
+            // delete self.dataURL;
         };
         img.src = this.dataURL;
     },
@@ -164,7 +164,6 @@ lively.morphic.Morph.subclass('DrawingCanvasMorph',
 },
 'HTML specific', {
     removeHTML: function($super, ctx) {
-        this.shape.storeImageData();
         $super(ctx);
     },
     onRenderFinishedHTML: function($super, ctx) {
